@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello SiteController!{% endblock %}
+
+{% block body %}
+
+    {% include 'flashMessage.html.twig' %}
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <h2>Sites</h2>
+        </div>
+        <div class="col-6 text-end">
+            <div class="btn-group">
+                <a href="{{ path('app_site_index') }}" class="btn btn-primary"
+                   data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fa-regular fa-file me-2"></i>
+                    Novo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card rounded-0">
+        <div class="card-body p-0">
+
+            <table class="table table-hover mb-0">
+                <thead class="table-secondary text-light">
+                <tr>
+                    <th>ID</th>
+                    <th>DOMAIN</th>
+                    <th>TITLE</th>
+                    <th>PHP_VERSION</th>
+                    <th>DOCUMENT_ROOT</th>
+                    <th>&nbsp;</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for site in sites %}
+                    <tr>
+                        <td>{{ site.id }}</td>
+                        <td>{{ site.domain }}</td>
+                        <td>{{ site.title }}</td>
+                        <td>{{ site.phpVersion }}</td>
+                        <td>{{ site.documentRoot }}</td>
+                        <td>
+                            <a href="#editModal" data-bs-toggle="modal"
+                               data-route="{{ path('app_site_edit', {id: site.id}) }}"
+                               data-target="#editModalBody" class="editModal">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Site Create</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <form id="site-create-form" action="{{ path('app_site_create') }}"
+                      method="POST">
+                    <div class="modal-body">
+
+
+                        <div class="form-group">
+                            <label for="domain" class="form-label fs-5">Domain</label>
+                            <input type="text" class="form-control" id="domain" name="domain">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title" class="form-label fs-5">Title</label>
+                            <input type="text" class="form-control" id="title" name="title">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phpVersion" class="form-label fs-5">Php Version</label>
+                            <select class="form-control" id="phpVersion" name="phpVersion">
+                                <option value="5.6">php5.6-fpm</option>
+                                <option value="7.4">php7.4-fpm</option>
+                                <option value="8.2">php8.2-fpm</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentRoot" class="form-label fs-5">Document Root</label>
+                            <input type="text" class="form-control" id="documentRoot"
+                                   name="documentRoot">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-regular fa-floppy-disk me-2"></i>
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby=""
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="">Site Create</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="editModalBody"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
