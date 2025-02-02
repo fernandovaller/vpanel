@@ -23,7 +23,7 @@ class SiteController extends AbstractController
     }
 
     /**
-     * @Route("/site", name="app_site_index")
+     * @Route("/", name="app_site_index")
      */
     public function index(): Response
     {
@@ -44,7 +44,10 @@ class SiteController extends AbstractController
 
             $this->siteService->create($requestData);
 
-            $this->addFlash('success', 'Site created!');
+            $this->addFlash(
+                'success',
+                'Configuração foi criada com sucesso! Rode o comando para gerar os arquivos!'
+            );
         } catch (\Exception $exception) {
             $this->addFlash('error', $exception->getMessage());
         }
@@ -93,7 +96,7 @@ class SiteController extends AbstractController
         try {
             $site = $this->siteService->get($id);
             $this->siteConfigService->create($site);
-            $this->addFlash('success', 'Site Config Created/Updated!');
+            $this->addFlash('success', 'Arquivos de configuração foram criados com sucesso!');
         } catch (\Exception $exception) {
             $this->addFlash('error', $exception->getMessage());
         }
