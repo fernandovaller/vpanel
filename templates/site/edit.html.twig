@@ -16,7 +16,7 @@
     <div class="form-group">
         <label for="phpVersion" class="form-label fs-5">Php Version</label>
         {% set php_versions = ['5.6', '7.4', '8.0', '8.1', '8.2'] %}
-        <select name="phpVersion" class="form-control">
+        <select name="phpVersion" id="phpVersion" class="form-control">
             {% for version in php_versions %}
                 <option value="{{ version }}" {{ site.phpVersion == version ? 'selected' : '' }}>
                     php{{ version }}-fpm
