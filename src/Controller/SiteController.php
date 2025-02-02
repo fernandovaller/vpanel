@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Site;
+use App\Service\SiteConfigService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,11 +12,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SiteController extends AbstractController
 {
+    private SiteConfigService $siteConfigService;
+
     private SiteService $siteService;
 
-    public function __construct(SiteService $siteService)
+    public function __construct(SiteService $siteService, SiteConfigService $siteConfigService)
     {
         $this->siteService = $siteService;
+        $this->siteConfigService = $siteConfigService;
     }
 
     /**
@@ -55,7 +59,7 @@ class SiteController extends AbstractController
     {
         try {
             $site = $this->siteService->get($id);
-            
+
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
             ]);
@@ -74,6 +78,22 @@ class SiteController extends AbstractController
             $requestData = $request->request->all();
             $site = $this->siteService->get($id);
             $this->siteService->update($requestData, $site);
+        } catch (\Exception $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/site/{id}/config", name="app_site_config")
+     */
+    public function config(int $id): Response
+    {
+        try {
+            $site = $this->siteService->get($id);
+            $this->siteConfigService->create($site);
+            $this->addFlash('success', 'Site Config Created/Updated!');
         } catch (\Exception $exception) {
             $this->addFlash('error', $exception->getMessage());
         }
