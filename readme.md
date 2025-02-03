@@ -4,6 +4,7 @@ vPanel é um simples painel para administrar sites em localhost utilizando o ser
 
 ## 🚀 Funcionalidades
 
+- Executar apenas em ambiantes de DEV!
 - Listar sites configurados no Apache
 - Adicionar, remover e gerenciar virtual hosts
 - Configuração simplificada do banco de dados SQLite
@@ -11,7 +12,7 @@ vPanel é um simples painel para administrar sites em localhost utilizando o ser
 
 ## 📦 Requisitos
 
-- PHP 8.1+
+- PHP 7.4+
 - Composer
 - Apache com suporte a virtual hosts
 - SQLite3
@@ -38,6 +39,8 @@ Edite o `.env.local` e configure a variável `DATABASE_URL` para usar SQLite:
 
 ```env
 DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
+MKCERT_PATH=/etc/ssl/mkcert/
+APACHE_VIRTUAL_HOST_PATH=/etc/apache2/sites-available/
 ```
 
 Crie a estrutura do banco de dados:
@@ -52,7 +55,7 @@ php bin/console doctrine:migrations:migrate
 Inicie o servidor embutido do Symfony:
 
 ```sh
-symfony server:start
+symfony server:start -d
 ```
 
 Acesse no navegador:
@@ -61,24 +64,16 @@ Acesse no navegador:
 http://127.0.0.1:8000
 ```
 
-## 🛠 Comandos úteis
+## 🛠  Permissões: Evitando Pedir Senha
 
-Criar uma nova entidade:
-
-```sh
-php bin/console make:entity
-```
-
-Criar uma nova migração:
+`www-data` é o usuário padrão do Apache/PHP no Linux. Se estiver usando outro usuário, substitua.
 
 ```sh
-php bin/console make:migration
-```
+# Edite o arquivo sudoers
+sudo visudo
 
-Executar migrações pendentes:
-
-```sh
-php bin/console doctrine:migrations:migrate
+# Adicione a seguinte linha no final do arquivo
+www-data ALL=(ALL) NOPASSWD
 ```
 
 ## 📜 Licença
