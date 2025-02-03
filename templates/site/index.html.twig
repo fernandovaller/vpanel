@@ -46,7 +46,7 @@
                         <td>{{ site.phpVersion }}</td>
                         <td>{{ site.documentRoot }}</td>
                         <td>
-                            <a href="{{ path('app_site_config_create', {id: site.id}) }}"
+                            <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
                                title="Criar ou atualizar configurações">
                                 <i class="fa-solid fa-terminal"></i>
                             </a>
@@ -99,21 +99,21 @@
 
 {% block javascripts %}
     <script>
-        $(document).on('click', '.editModal', function (event) {
-            event.preventDefault();
+      $(document).on('click', '.editModal', function (event) {
+        event.preventDefault();
 
-            let route = $(this).data('route');
-            let target = $(this).data('target');
-            let modal = $(`${target}`);
+        let route = $(this).data('route');
+        let target = $(this).data('target');
+        let modal = $(`${target}`);
 
-            $.get(route, function (data) {
-                if (!data) {
-                    return;
-                }
+        $.get(route, function (data) {
+          if (!data) {
+            return;
+          }
 
-                modal.html(data);
-            });
-
+          modal.html(data);
         });
+
+      });
     </script>
 {% endblock %}

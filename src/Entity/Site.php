@@ -47,6 +47,11 @@ class Site
         return $this->domain;
     }
 
+    public function getDomainConf(): ?string
+    {
+        return $this->domain . '.conf';
+    }
+
     public function setDomain(string $domain): self
     {
         $this->domain = $domain;

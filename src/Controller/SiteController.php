@@ -111,20 +111,4 @@ class SiteController extends AbstractController
 
         return $this->redirectToRoute('app_site_index');
     }
-
-    /**
-     * @Route("/site/{id}/config", name="app_site_config_create")
-     */
-    public function configCreate(int $id, SiteConfigCreateService $configCreateService): Response
-    {
-        try {
-            $site = $this->siteService->get($id);
-            $configCreateService->create($site);
-            $this->addFlash('success', 'Arquivos de configuração foram criados com sucesso!');
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('app_site_index');
-    }
 }

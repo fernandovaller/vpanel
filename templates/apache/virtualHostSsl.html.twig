@@ -1,0 +1,27 @@
+<VirtualHost *:443>
+    ServerName {{ domain }}
+    DocumentRoot {{ documentRoot }}
+
+    <Directory {{ documentRoot }}>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <FilesMatch \.php$>
+        # 2.4.10+ pode fazer proxy para socket unix
+        SetHandler "proxy:unix:/var/run/php/php{{ phpVersion }}-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    SSLEngine on
+    SSLCertificateFile {{ certPath }}{{ domain }}.pem
+    SSLCertificateKeyFile {{ certPath }}{{ domain }}-key.pem
+
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+    SSLOptions +StdEnvVars
+    </FilesMatch>
+</VirtualHost>
+
