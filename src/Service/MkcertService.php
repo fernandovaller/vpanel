@@ -40,4 +40,20 @@ final class MkcertService
             throw new ProcessFailedException($process);
         }
     }
+
+    public function delete(string $domain): void
+    {
+        $certPath = $this->parameterBag->get('mkcertPath');
+
+        $keyFile = $domain . '-key.pem';
+        $certFile = $domain . '.pem';
+
+        $process = new Process(['sudo', 'rm', '-f', $keyFile, $certFile]);
+        $process->setWorkingDirectory($certPath);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
 }

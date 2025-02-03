@@ -1,17 +1,17 @@
 <form id="site-create-form" action="{{ path('app_site_create') }}"
       method="POST">
-
-    <div class="form-group">
+    
+    <div class="form-group mb-3">
         <label for="domain" class="form-label fs-5">Domain</label>
         <input type="text" class="form-control" id="domain" name="domain">
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label for="title" class="form-label fs-5">Title</label>
         <input type="text" class="form-control" id="title" name="title">
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label for="phpVersion" class="form-label fs-5">Php Version</label>
         <select class="form-control" id="phpVersion" name="phpVersion">
             <option value="5.6">php5.6-fpm</option>
@@ -23,8 +23,9 @@
     <div class="form-group mb-4">
         <label for="documentRoot" class="form-label fs-5">Document Root</label>
         <input type="text" class="form-control" id="documentRoot"
-               name="documentRoot">
+               name="documentRoot" value="/var/www/">
     </div>
+
 
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -23,13 +23,13 @@ final class SiteService
 
     public function getAll(): array
     {
-        return $this->entityManager->getRepository(Site::class)->findAll();
+        return $this->entityManager->getRepository(Site::class)->findBy([], ['id' => 'DESC']);
     }
 
     public function create(array $requestData): ?Site
     {
         $this->validate($requestData);
-        
+
         $site = (new Site())
             ->setDomain(trim($requestData['domain']))
             ->setTitle($requestData['title'])
@@ -45,7 +45,7 @@ final class SiteService
     public function update(array $requestData, Site $site): ?Site
     {
         $this->validate($requestData);
-        
+
         $site
             ->setDomain(trim($requestData['domain']))
             ->setTitle($requestData['title'])

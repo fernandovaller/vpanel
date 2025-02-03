@@ -50,11 +50,11 @@ final class ApacheVirtualHostFileService
         }
     }
     
-    public function delete(string $fileName): void
+    public function delete(Site $site): void
     {
         $apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
 
-        $process = new Process(['sudo', 'rm', '-f', $fileName]);
+        $process = new Process(['sudo', 'rm', '-f', $site->getDomainConf()]);
         $process->setWorkingDirectory($apacheVirtualHostPath);
         $process->run();
 

@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Service\ApacheService;
-use App\Service\ApacheVirtualHostFileService;
-use App\Service\MkcertService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,6 +38,29 @@ class ApacheController extends AbstractController
             $this->apacheService->create($site);
 
             $this->addFlash('success', 'Arquivos de configuração foram criados com sucesso!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/{id}/delete", name="app_apache_delete_site", methods={"GET"})
+     */
+    public function deleteSite(int $id): Response
+    {
+        try {
+            $site = $this->siteService->get($id);
+
+            if ($site === null) {
+                throw new NotFoundHttpException('Site não existe!');
+            }
+
+            $this->apacheService->delete($site);
+            $this->siteService->delete($site);
+
+            $this->addFlash('success', 'Arquivos de configuração foram removidos com sucesso!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

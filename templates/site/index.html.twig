@@ -24,7 +24,7 @@
     <div class="card rounded-0">
         <div class="card-body p-0">
 
-            <table class="table table-hover mb-0">
+            <table class="table table-center table-hover mb-0">
                 <thead class="table-secondary text-light">
                 <tr>
                     <th>ID</th>
@@ -41,10 +41,12 @@
                 {% for site in sites %}
                     <tr>
                         <td>{{ site.id }}</td>
-                        <td>{{ site.domain }}</td>
+                        <td>
+                            <a href="https://{{ site.domain }}" target="_blank">{{ site.domain }}</a>
+                        </td>
                         <td>{{ site.title }}</td>
                         <td>{{ site.phpVersion }}</td>
-                        <td>{{ site.documentRoot }}</td>
+                        <td class="small">{{ site.documentRoot }}</td>
                         <td>
                             <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
                                title="Criar ou atualizar configurações">

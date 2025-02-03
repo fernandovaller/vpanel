@@ -2,9 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Site;
-use App\Service\SiteConfigCreateService;
-use App\Service\SiteConfigDeleteService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,27 +80,6 @@ class SiteController extends AbstractController
             $this->addFlash(
                 'success',
                 'Configuração alterada com sucesso! Rode o comando para atualizar os arquivos!'
-            );
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('app_site_index');
-    }
-
-    /**
-     * @Route("/site/{id}/delete", name="app_site_delete", methods={"GET"})
-     */
-    public function delete(int $id, SiteConfigDeleteService $configDeleteService): Response
-    {
-        try {
-            $site = $this->siteService->get($id);
-            $configDeleteService->delete($site);
-            $this->siteService->delete($site);
-
-            $this->addFlash(
-                'success',
-                'Configuração removida! Os arquivos foram apagados com sucesso!'
             );
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());

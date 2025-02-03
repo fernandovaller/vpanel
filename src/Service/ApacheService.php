@@ -33,10 +33,19 @@ final class ApacheService
         $this->apacheVirtualHostFileService->create($site);
         $this->mkcertService->generate($site->getDomain());
         $this->enableSite($site->getDomainConf());
+        $this->appendSiteInHosts($site->getDomain());
         $this->restart();
 
         $this->createFolder($site);
         $this->createFile($site);
+    }
+
+    public function delete(Site $site): void
+    {
+        $this->apacheVirtualHostFileService->delete($site);
+        $this->mkcertService->delete($site->getDomain());
+        $this->disableSite($site->getDomainConf());
+        $this->restart();
     }
 
     private function enableSite(string $fileName): void
@@ -52,9 +61,22 @@ final class ApacheService
         }
     }
 
+    private function disableSite(string $fileName): void
+    {
+        $filePath = $this->parameterBag->get('apacheVirtualHostPath');
+
+        $process = new Process(['sudo', 'a2dissite', $fileName]);
+        $process->setWorkingDirectory($filePath);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
     private function restart(): void
     {
-        $process = new Process(['sudo', 'service', 'apache2', 'restart']);
+        $process = new Process(['sudo', 'service', 'apache2', 'reload']);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -83,6 +105,24 @@ final class ApacheService
             "echo " . escapeshellarg($content) . " > " . escapeshellarg('index.php'),
         ]);
         $process->setWorkingDirectory($site->getDocumentRoot());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
+    private function appendSiteInHosts(string $domain): void
+    {
+        $content = sprintf('127.0.0.1       %s', $domain);
+
+        $process = new Process([
+            "sudo",
+            "bash",
+            "-c",
+            "echo " . escapeshellarg($content) . " >> /etc/hosts" . PHP_EOL,
+        ]);
+
         $process->run();
 
         if (!$process->isSuccessful()) {
