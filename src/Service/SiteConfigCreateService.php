@@ -8,7 +8,7 @@ use App\Entity\Site;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-final class SiteConfigService
+final class SiteConfigCreateService
 {
     public function create(Site $site): void
     {
@@ -22,7 +22,7 @@ final class SiteConfigService
         $this->createFile($virtualHostPath, $virtualHostFileName);
         $this->createCertFile($site, $certPath);
         $this->appendFileContent($virtualHostPath, $virtualHostFileName, $virtualHostFileContent);
-        $this->enableFile($virtualHostPath, $virtualHostFileName);
+        $this->enableSite($virtualHostPath, $virtualHostFileName);
         $this->restartApache();
     }
 
@@ -51,7 +51,7 @@ final class SiteConfigService
         }
     }
 
-    private function enableFile(string $filePath, string $fileName): void
+    private function enableSite(string $filePath, string $fileName): void
     {
         $process = new Process(['sudo', 'a2ensite', $fileName]);
         $process->setWorkingDirectory($filePath);

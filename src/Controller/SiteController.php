@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Site;
-use App\Service\SiteConfigService;
+use App\Service\SiteConfigCreateService;
+use App\Service\SiteConfigDeleteService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,18 +13,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SiteController extends AbstractController
 {
-    private SiteConfigService $siteConfigService;
-
     private SiteService $siteService;
 
-    public function __construct(SiteService $siteService, SiteConfigService $siteConfigService)
+    public function __construct(SiteService $siteService)
     {
         $this->siteService = $siteService;
-        $this->siteConfigService = $siteConfigService;
     }
 
     /**
-     * @Route("/", name="app_site_index")
+     * @Route("/", name="app_site_index", methods={"GET"})
      */
     public function index(): Response
     {
@@ -35,7 +33,7 @@ class SiteController extends AbstractController
     }
 
     /**
-     * @Route("/site/create", name="app_site_create")
+     * @Route("/site/create", name="app_site_create", methods={"POST"})
      */
     public function create(Request $request): Response
     {
@@ -49,14 +47,14 @@ class SiteController extends AbstractController
                 'Configuração foi criada com sucesso! Rode o comando para gerar os arquivos!'
             );
         } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
+            $this->addFlash('danger', $exception->getMessage());
         }
 
         return $this->redirectToRoute('app_site_index');
     }
 
     /**
-     * @Route("/site/{id}/edit", name="app_site_edit")
+     * @Route("/site/{id}/edit", name="app_site_edit", methods={"GET"})
      */
     public function edit(int $id): Response
     {
@@ -67,13 +65,13 @@ class SiteController extends AbstractController
                 'site' => $site,
             ]);
         } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
+            $this->addFlash('danger', $exception->getMessage());
             return $this->redirectToRoute('app_site_index');
         }
     }
 
     /**
-     * @Route("/site/{id}/update", name="app_site_update")
+     * @Route("/site/{id}/update", name="app_site_update", methods={"POST"})
      */
     public function update(Request $request, int $id): Response
     {
@@ -81,24 +79,50 @@ class SiteController extends AbstractController
             $requestData = $request->request->all();
             $site = $this->siteService->get($id);
             $this->siteService->update($requestData, $site);
+
+            $this->addFlash(
+                'success',
+                'Configuração alterada com sucesso! Rode o comando para atualizar os arquivos!'
+            );
         } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
+            $this->addFlash('danger', $exception->getMessage());
         }
 
         return $this->redirectToRoute('app_site_index');
     }
 
     /**
-     * @Route("/site/{id}/config", name="app_site_config")
+     * @Route("/site/{id}/delete", name="app_site_delete", methods={"GET"})
      */
-    public function config(int $id): Response
+    public function delete(int $id, SiteConfigDeleteService $configDeleteService): Response
     {
         try {
             $site = $this->siteService->get($id);
-            $this->siteConfigService->create($site);
+            $configDeleteService->delete($site);
+            $this->siteService->delete($site);
+
+            $this->addFlash(
+                'success',
+                'Configuração removida! Os arquivos foram apagados com sucesso!'
+            );
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/site/{id}/config", name="app_site_config_create")
+     */
+    public function configCreate(int $id, SiteConfigCreateService $configCreateService): Response
+    {
+        try {
+            $site = $this->siteService->get($id);
+            $configCreateService->create($site);
             $this->addFlash('success', 'Arquivos de configuração foram criados com sucesso!');
         } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
+            $this->addFlash('danger', $exception->getMessage());
         }
 
         return $this->redirectToRoute('app_site_index');
