@@ -113,15 +113,11 @@ final class ApacheService
 
     private function appendSiteInHosts(string $domain): void
     {
-        $content = sprintf('127.0.0.1       %s', $domain);
+        $domainRow = sprintf('127.0.0.1       %s', $domain);
 
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " >> /etc/hosts" . PHP_EOL,
-        ]);
+        $command = sprintf('grep -qxF "%s" /etc/hosts || echo "%s" | sudo tee -a /etc/hosts', $domainRow, $domainRow);
 
+        $process = Process::fromShellCommandline($command);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -140,15 +136,12 @@ final class ApacheService
         $this->restart();
     }
 
-    public function getAccessLog(): string
+    public function getAccessLog(Site $site, int $numberLines = 20): string
     {
-        $process = new Process([
-            "sudo",
-            "tail",
-            "-30",
-            "/var/log/apache2/access.log",
-        ]);
+        $path = '/var/log/apache2/' . $site->getAccessLog();
+        $lines = '-' . $numberLines;
 
+        $process = new Process(["sudo", "tail", $lines, $path]);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -158,15 +151,12 @@ final class ApacheService
         return $process->getOutput();
     }
 
-    public function getErrorLog(): string
+    public function getErrorLog(Site $site, int $numberLines = 20): string
     {
-        $process = new Process([
-            "sudo",
-            "tail",
-            "-30",
-            "/var/log/apache2/error.log",
-        ]);
+        $path = '/var/log/apache2/' . $site->getErrorLog();
+        $lines = '-' . $numberLines;
 
+        $process = new Process(["sudo", "tail", $lines, $path]);
         $process->run();
 
         if (!$process->isSuccessful()) {

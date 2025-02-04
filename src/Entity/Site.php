@@ -128,4 +128,14 @@ class Site
 
         return $this;
     }
+
+    public function getErrorLog(): string
+    {
+        return $this->domain . '-error.log';
+    }
+
+    public function getAccessLog(): string
+    {
+        return $this->domain . '-access.log';
+    }
 }

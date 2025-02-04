@@ -3,6 +3,7 @@
     DocumentRoot {{ documentRoot }}
 
     <Directory {{ documentRoot }}>
+        SetOutputFilter DEFLATE
         Options Indexes FollowSymLinks MultiViews
         AllowOverride All
         Require all granted
@@ -10,11 +11,10 @@
     </Directory>
 
     <FilesMatch \.php$>
-        # 2.4.10+ pode fazer proxy para socket unix
         SetHandler "proxy:unix:/var/run/php/php{{ phpVersion }}-fpm.sock|fcgi://localhost"
     </FilesMatch>
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/{{ errorLog }}
+    CustomLog ${APACHE_LOG_DIR}/{{ accessLog }} combined env=!dontlog
 </VirtualHost>
 

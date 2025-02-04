@@ -3,6 +3,7 @@
     DocumentRoot {{ documentRoot }}
 
     <Directory {{ documentRoot }}>
+        SetOutputFilter DEFLATE
         Options Indexes FollowSymLinks MultiViews
         AllowOverride All
         Require all granted
@@ -10,16 +11,24 @@
     </Directory>
 
     <FilesMatch \.php$>
-        # 2.4.10+ pode fazer proxy para socket unix
         SetHandler "proxy:unix:/var/run/php/php{{ phpVersion }}-fpm.sock|fcgi://localhost"
     </FilesMatch>
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/{{ errorLog }}
+    CustomLog ${APACHE_LOG_DIR}/{{ accessLog }} combined env=!dontlog
 
     SSLEngine on
     SSLCertificateFile {{ certPath }}{{ domain }}.pem
     SSLCertificateKeyFile {{ certPath }}{{ domain }}-key.pem
+    
+    # Define a lista de suites de cifra permitidas para conexões SSL/TLS.
+    SSLCipherSuite EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5
+    
+    # Define quais protocolos SSL/TLS são permitidos
+    SSLProtocol All -SSLv2 -SSLv3 -TLSv1
+    
+    # Garante que o servidor escolha a melhor suite de cifra em vez de permitir que o cliente decida.
+    SSLHonorCipherOrder On
 
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
     SSLOptions +StdEnvVars
