@@ -96,6 +96,7 @@ final class ApacheVirtualHostFileService
             'domain' => $site->getDomain(),
             'documentRoot' => $site->getDocumentRoot(),
             'phpVersion' => $site->getPhpVersion(),
+            'defaultDocument' => $site->getDefaultDocument(),
         ]);
     }
 
@@ -107,6 +108,7 @@ final class ApacheVirtualHostFileService
             'domain' => $site->getDomain(),
             'documentRoot' => $site->getDocumentRoot(),
             'phpVersion' => $site->getPhpVersion(),
+            'defaultDocument' => $site->getDefaultDocument(),
             'certPath' => $certPath,
         ]);
     }

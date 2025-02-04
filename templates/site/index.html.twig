@@ -32,6 +32,7 @@
                     <th>TITLE</th>
                     <th>PHP_VERSION</th>
                     <th>DOCUMENT_ROOT</th>
+                    <th>DEFAULT_DOCUMENT</th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </tr>
@@ -47,6 +48,7 @@
                         <td>{{ site.title }}</td>
                         <td>{{ site.phpVersion }}</td>
                         <td class="small">{{ site.documentRoot }}</td>
+                        <td class="small">{{ site.defaultDocument }}</td>
                         <td>
                             <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
                                title="Criar ou atualizar configurações">

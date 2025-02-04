@@ -59,13 +59,18 @@ class SiteController extends AbstractController
         try {
             $site = $this->siteService->get($id);
             $virtualHostConf = $apacheService->getVirtualHostConf($site);
+            $accessLog = $apacheService->getAccessLog();
+            $errorLog = $apacheService->getErrorLog();
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
                 'virtualHostConf' => $virtualHostConf,
+                'accessLog' => $accessLog,
+                'errorLog' => $errorLog,
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
+
             return $this->redirectToRoute('app_site_index');
         }
     }

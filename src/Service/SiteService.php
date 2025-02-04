@@ -50,7 +50,9 @@ final class SiteService
             ->setDomain(trim($requestData['domain']))
             ->setTitle($requestData['title'])
             ->setDocumentRoot(trim($requestData['documentRoot']))
-            ->setPhpVersion($requestData['phpVersion']);
+            ->setPhpVersion($requestData['phpVersion'])
+            ->setSiteDirectory(trim($requestData['siteDirectory']))
+            ->setDefaultDocument(trim($requestData['defaultDocument']));
 
         $this->entityManager->flush();
 

@@ -17,6 +17,8 @@ final class ApacheService
 
     protected MkcertService $mkcertService;
 
+    private string $apacheVirtualHostPath;
+
     public function __construct(
         ParameterBagInterface $parameterBag,
         ApacheVirtualHostFileService $apacheVirtualHostFileService,
@@ -26,6 +28,7 @@ final class ApacheService
         $this->parameterBag = $parameterBag;
         $this->apacheVirtualHostFileService = $apacheVirtualHostFileService;
         $this->mkcertService = $mkcertService;
+        $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
     }
 
     public function create(Site $site): void
@@ -50,10 +53,8 @@ final class ApacheService
 
     private function enableSite(string $fileName): void
     {
-        $filePath = $this->parameterBag->get('apacheVirtualHostPath');
-
         $process = new Process(['sudo', 'a2ensite', $fileName]);
-        $process->setWorkingDirectory($filePath);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -63,10 +64,8 @@ final class ApacheService
 
     private function disableSite(string $fileName): void
     {
-        $filePath = $this->parameterBag->get('apacheVirtualHostPath');
-
         $process = new Process(['sudo', 'a2dissite', $fileName]);
-        $process->setWorkingDirectory($filePath);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -139,5 +138,41 @@ final class ApacheService
     {
         $this->apacheVirtualHostFileService->update($site, $content);
         $this->restart();
+    }
+
+    public function getAccessLog(): string
+    {
+        $process = new Process([
+            "sudo",
+            "tail",
+            "-30",
+            "/var/log/apache2/access.log",
+        ]);
+
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function getErrorLog(): string
+    {
+        $process = new Process([
+            "sudo",
+            "tail",
+            "-30",
+            "/var/log/apache2/error.log",
+        ]);
+
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 }

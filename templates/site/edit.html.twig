@@ -1,44 +1,52 @@
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
-                data-bs-target="#home-tab-pane" type="button" role="tab"
-                aria-controls="home-tab-pane" aria-selected="true">Site
+        <button class="nav-link active" id="tab1" data-bs-toggle="tab"
+                data-bs-target="#tab01" type="button" role="tab" aria-selected="true">
+            Site
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
-                data-bs-target="#profile-tab-pane" type="button" role="tab"
-                aria-controls="profile-tab-pane" aria-selected="false">VirtualHost
+        <button class="nav-link" id="tab2" data-bs-toggle="tab"
+                data-bs-target="#tab02" type="button" role="tab" aria-selected="false">
+            VirtualHost
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
-                data-bs-target="#contact-tab-pane" type="button" role="tab"
-                aria-controls="contact-tab-pane" aria-selected="false">Contact
+        <button class="nav-link" id="tab3" data-bs-toggle="tab"
+                data-bs-target="#tab03" type="button" role="tab" aria-selected="false">
+            Access Log
         </button>
     </li>
+
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="disabled-tab" data-bs-toggle="tab"
-                data-bs-target="#disabled-tab-pane" type="button" role="tab"
-                aria-controls="disabled-tab-pane" aria-selected="false" disabled>Disabled
+        <button class="nav-link" id="tab4" data-bs-toggle="tab"
+                data-bs-target="#tab04" type="button" role="tab" aria-selected="false">
+            Error Log
         </button>
     </li>
 </ul>
 <div class="tab-content border border-top-0" id="myTabContent">
-    <div class="tab-pane p-3 fade show active" id="home-tab-pane" role="tabpanel"
-         aria-labelledby="home-tab" tabindex="0">
+    <div class="tab-pane p-3 fade show active" id="tab01" role="tabpanel" tabindex="1">
         {% include 'site/editSite.html.twig' %}
     </div>
-    
-    <div class="tab-pane p-3 fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab"
-         tabindex="0">
+
+    <div class="tab-pane p-3 fade" id="tab02" role="tabpanel" tabindex="2">
         {% include 'site/editVirtualHost.html.twig' %}
     </div>
-    
-    <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab"
-         tabindex="0">...
+
+    <div class="tab-pane p-3 fade" id="tab03" role="tabpanel" tabindex="3">
+        {% include 'site/editAccessLog.html.twig' %}
     </div>
-    <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab"
-         tabindex="0">...
+
+    <div class="tab-pane p-3 fade" id="tab04" role="tabpanel" tabindex="4">
+        {% include 'site/editErrorLog.html.twig' %}
     </div>
 </div>
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            hljs.highlightAll();
+        });
+    </script>
+{% endblock %}

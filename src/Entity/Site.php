@@ -37,6 +37,16 @@ class Site
      */
     private $documentRoot;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $siteDirectory;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $defaultDocument;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +101,30 @@ class Site
     public function setDocumentRoot(string $documentRoot): self
     {
         $this->documentRoot = $documentRoot;
+
+        return $this;
+    }
+
+    public function getSiteDirectory(): ?string
+    {
+        return $this->siteDirectory;
+    }
+
+    public function setSiteDirectory(?string $siteDirectory): self
+    {
+        $this->siteDirectory = $siteDirectory;
+
+        return $this;
+    }
+
+    public function getDefaultDocument(): ?string
+    {
+        return $this->defaultDocument;
+    }
+
+    public function setDefaultDocument(?string $defaultDocument): self
+    {
+        $this->defaultDocument = $defaultDocument;
 
         return $this;
     }
