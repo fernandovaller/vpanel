@@ -14,6 +14,11 @@
         SetHandler "proxy:unix:/var/run/php/php{{ phpVersion }}-fpm.sock|fcgi://localhost"
     </FilesMatch>
 
+    <Files ~ (\.user.ini|\.htaccess|\.git|\.env|\.svn|\.project|LICENSE|README.md)$>
+        Order allow,deny
+        Deny from all
+    </Files>
+
     ErrorLog ${APACHE_LOG_DIR}/{{ errorLog }}
     CustomLog ${APACHE_LOG_DIR}/{{ accessLog }} combined env=!dontlog
 

@@ -95,4 +95,28 @@ class ApacheController extends AbstractController
 
         return $this->redirectToRoute('app_site_index');
     }
+
+    /**
+     * @Route("/apache/{id}/userini", name="app_apache_userini", methods={"POST"})
+     */
+    public function createUserIni(Request $request, int $id): Response
+    {
+        try {
+            $userIni = $request->request->get('userIni');
+
+            $site = $this->siteService->get($id);
+
+            if ($site === null) {
+                throw new NotFoundHttpException('Site não existe!');
+            }
+
+            $this->apacheService->createUserIniFile($site, $userIni);
+
+            $this->addFlash('success', 'Arquivo de configuração foi criado!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
 }

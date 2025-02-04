@@ -45,6 +45,7 @@ final class ApacheService
 
         $this->createFolder($site);
         $this->createFile($site);
+        $this->setPermission($site);
     }
 
     public function delete(Site $site): void
@@ -144,6 +145,22 @@ final class ApacheService
         $this->restart();
     }
 
+    public function createUserIniFile(Site $site, string $content): void
+    {
+        $process = new Process([
+            "sudo",
+            "bash",
+            "-c",
+            "echo " . escapeshellarg($content) . " > " . escapeshellarg('.user.ini'),
+        ]);
+        $process->setWorkingDirectory($site->getDocumentRoot());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
     public function getAccessLog(Site $site, int $numberLines = 20): string
     {
         $path = '/var/log/apache2/' . $site->getAccessLog();
@@ -180,5 +197,18 @@ final class ApacheService
         }
 
         return $process->getOutput();
+    }
+
+    public function setPermission(Site $site): void
+    {
+        $path = $site->getSiteDirectory();
+
+        $process = new Process(['sudo', 'chown', 'www-data:www-data', $path, '-R']);
+        $process->setWorkingDirectory(dirname($path, 1));
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
     }
 }

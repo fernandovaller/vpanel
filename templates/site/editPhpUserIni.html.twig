@@ -1,0 +1,17 @@
+<form id="site-create-form" action="{{ path('app_apache_userini', {id: site.id}) }}"
+      method="POST">
+
+    <div class="form-group mb-4">
+        <textarea cols="30" rows="20" class="form-control block-code"
+                  id="userIni"
+                  name="userIni" spellcheck="false"></textarea>
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-success">
+            <i class="fa-regular fa-floppy-disk me-2"></i>
+            Save
+        </button>
+    </div>
+
+</form>

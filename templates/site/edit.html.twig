@@ -24,6 +24,13 @@
             Error Log
         </button>
     </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab5" data-bs-toggle="tab"
+                data-bs-target="#tab05" type="button" role="tab" aria-selected="false">
+            User.ini
+        </button>
+    </li>
 </ul>
 <div class="tab-content border border-top-0" id="myTabContent">
     <div class="tab-pane p-3 fade show active" id="tab01" role="tabpanel" tabindex="1">
@@ -40,6 +47,10 @@
 
     <div class="tab-pane p-3 fade" id="tab04" role="tabpanel" tabindex="4">
         {% include 'site/editErrorLog.html.twig' %}
+    </div>
+
+    <div class="tab-pane p-3 fade" id="tab05" role="tabpanel" tabindex="4">
+        {% include 'site/editPhpUserIni.html.twig' %}
     </div>
 </div>
 
