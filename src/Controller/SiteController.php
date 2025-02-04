@@ -21,12 +21,14 @@ class SiteController extends AbstractController
     /**
      * @Route("/", name="app_site_index", methods={"GET"})
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $sites = $this->siteService->getAll();
+        $page = $request->query->getInt('page', 1);
+
+        $pagination = $this->siteService->getAll($page);
 
         return $this->render('site/index.html.twig', [
-            'sites' => $sites,
+            'pagination' => $pagination,
         ]);
     }
 

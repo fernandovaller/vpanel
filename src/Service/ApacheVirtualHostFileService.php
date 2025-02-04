@@ -29,8 +29,12 @@ final class ApacheVirtualHostFileService
         $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
     }
 
-    public function get($site): string
+    public function get(Site $site): string
     {
+        if (!$this->filesystem->exists($this->apacheVirtualHostPath . $site->getDomainConf())) {
+            return '';
+        }
+
         $process = new Process(['sudo', 'cat', $site->getDomainConf()]);
         $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
@@ -81,6 +85,10 @@ final class ApacheVirtualHostFileService
 
     public function delete(Site $site): void
     {
+        if (!$this->filesystem->exists($this->apacheVirtualHostPath . $site->getDomainConf())) {
+            return;
+        }
+
         $process = new Process(['sudo', 'rm', '-f', $site->getDomainConf()]);
         $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();

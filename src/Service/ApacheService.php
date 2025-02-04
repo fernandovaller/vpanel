@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\Site;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -19,6 +20,8 @@ final class ApacheService
 
     private string $apacheVirtualHostPath;
 
+    private Filesystem $filesystem;
+
     public function __construct(
         ParameterBagInterface $parameterBag,
         ApacheVirtualHostFileService $apacheVirtualHostFileService,
@@ -29,6 +32,7 @@ final class ApacheService
         $this->apacheVirtualHostFileService = $apacheVirtualHostFileService;
         $this->mkcertService = $mkcertService;
         $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
+        $this->filesystem = new Filesystem();
     }
 
     public function create(Site $site): void
@@ -64,6 +68,10 @@ final class ApacheService
 
     private function disableSite(string $fileName): void
     {
+        if (!$this->filesystem->exists($this->apacheVirtualHostPath . $fileName)) {
+            return;
+        }
+
         $process = new Process(['sudo', 'a2dissite', $fileName]);
         $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
@@ -141,6 +149,10 @@ final class ApacheService
         $path = '/var/log/apache2/' . $site->getAccessLog();
         $lines = '-' . $numberLines;
 
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
+
         $process = new Process(["sudo", "tail", $lines, $path]);
         $process->run();
 
@@ -155,6 +167,10 @@ final class ApacheService
     {
         $path = '/var/log/apache2/' . $site->getErrorLog();
         $lines = '-' . $numberLines;
+
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
 
         $process = new Process(["sudo", "tail", $lines, $path]);
         $process->run();

@@ -6,14 +6,19 @@ namespace App\Service;
 
 use App\Entity\Site;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 final class SiteService
 {
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private PaginatorInterface $paginator;
+
+    public function __construct(EntityManagerInterface $entityManager, PaginatorInterface $paginator)
     {
         $this->entityManager = $entityManager;
+        $this->paginator = $paginator;
     }
 
     public function get(int $id): ?Site
@@ -21,9 +26,14 @@ final class SiteService
         return $this->entityManager->getRepository(Site::class)->find($id);
     }
 
-    public function getAll(): array
+    public function getAll(int $page = 1): PaginationInterface
     {
-        return $this->entityManager->getRepository(Site::class)->findBy([], ['id' => 'DESC']);
+        $query = $this->entityManager->getRepository(Site::class)
+            ->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC')
+            ->getQuery();
+        
+        return $this->paginator->paginate($query, $page, 10);
     }
 
     public function create(array $requestData): ?Site

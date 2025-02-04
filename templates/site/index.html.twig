@@ -21,53 +21,52 @@
         </div>
     </div>
 
-    <div class="card rounded-0">
-        <div class="card-body p-0">
+    <div class="table-responsive">
+        <table class="table table-center table-hover mb-4">
+            <thead class="">
+            <tr class="table-primary">
+                <th>DOMAIN</th>
+                <th>TITLE</th>
+                <th>PHP VERSION</th>
+                <th>DOCUMENT ROOT</th>
+                <th>DEFAULT DOCUMENT</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
 
-            <table class="table table-center table-hover mb-0">
-                <thead class="table-secondary text-light">
+            <tbody>
+            {% for site in pagination.items %}
                 <tr>
-                    <th>ID</th>
-                    <th>DOMAIN</th>
-                    <th>TITLE</th>
-                    <th>PHP_VERSION</th>
-                    <th>DOCUMENT_ROOT</th>
-                    <th>DEFAULT_DOCUMENT</th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
+                    <td>
+                        <a href="https://{{ site.domain }}" target="_blank"
+                           class="btn-link">{{ site.domain }}</a>
+                    </td>
+                    <td>{{ site.title }}</td>
+                    <td class="text-center">{{ site.phpVersion }}</td>
+                    <td class="small">{{ site.documentRoot }}</td>
+                    <td class="small">{{ site.defaultDocument }}</td>
+                    <td>
+                        <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
+                           title="Criar ou atualizar configurações">
+                            <i class="fa-solid fa-terminal"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#editModal" data-bs-toggle="modal"
+                           data-route="{{ path('app_site_edit', {id: site.id}) }}"
+                           data-target="#editModalBody" class="editModal">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
                 </tr>
-                </thead>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                <tbody>
-                {% for site in sites %}
-                    <tr>
-                        <td>{{ site.id }}</td>
-                        <td>
-                            <a href="https://{{ site.domain }}" target="_blank">{{ site.domain }}</a>
-                        </td>
-                        <td>{{ site.title }}</td>
-                        <td>{{ site.phpVersion }}</td>
-                        <td class="small">{{ site.documentRoot }}</td>
-                        <td class="small">{{ site.defaultDocument }}</td>
-                        <td>
-                            <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
-                               title="Criar ou atualizar configurações">
-                                <i class="fa-solid fa-terminal"></i>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#editModal" data-bs-toggle="modal"
-                               data-route="{{ path('app_site_edit', {id: site.id}) }}"
-                               data-target="#editModalBody" class="editModal">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-
-        </div>
+    <div class="d-flex justify-content-end">
+        {{ knp_pagination_render(pagination) }}
     </div>
 
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -103,21 +102,21 @@
 
 {% block javascripts %}
     <script>
-      $(document).on('click', '.editModal', function (event) {
-        event.preventDefault();
+        $(document).on('click', '.editModal', function (event) {
+            event.preventDefault();
 
-        let route = $(this).data('route');
-        let target = $(this).data('target');
-        let modal = $(`${target}`);
+            let route = $(this).data('route');
+            let target = $(this).data('target');
+            let modal = $(`${target}`);
 
-        $.get(route, function (data) {
-          if (!data) {
-            return;
-          }
+            $.get(route, function (data) {
+                if (!data) {
+                    return;
+                }
 
-          modal.html(data);
+                modal.html(data);
+            });
+
         });
-
-      });
     </script>
 {% endblock %}

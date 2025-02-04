@@ -1,8 +1,9 @@
 <form id="site-create-form" action="{{ path('app_site_create') }}"
       method="POST">
-    
+
     <div class="form-group mb-3">
         <label for="domain" class="form-label">Domain</label>
+        <span class="small text-muted">site.local</span>
         <input type="text" class="form-control" id="domain" name="domain">
     </div>
 
@@ -12,18 +13,36 @@
     </div>
 
     <div class="form-group mb-3">
-        <label for="phpVersion" class="form-label">Php Version</label>
-        <select class="form-control" id="phpVersion" name="phpVersion">
-            <option value="5.6">php5.6-fpm</option>
-            <option value="7.4">php7.4-fpm</option>
-            <option value="8.2">php8.2-fpm</option>
+        <label for="phpVersion" class="form-label">PHP Version</label>
+        {% set php_versions = ['5.6', '7.4', '8.0', '8.1', '8.2'] %}
+        <select name="phpVersion" id="phpVersion" class="form-control">
+            {% for version in php_versions %}
+                <option value="{{ version }}" }}>
+                    php{{ version }}-fpm
+                </option>
+            {% endfor %}
         </select>
     </div>
 
     <div class="form-group mb-4">
         <label for="documentRoot" class="form-label">Document Root</label>
+        <span class="small text-muted">/var/www/site/public</span>
         <input type="text" class="form-control" id="documentRoot"
                name="documentRoot" value="/var/www/">
+    </div>
+
+
+    <div class="form-group mb-3">
+        <label for="title" class="form-label">Site Directory</label>
+        <span class="small text-muted">/var/www/site/</span>
+        <input type="text" class="form-control" id="title" name="siteDirectory" value="/var/www/">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="title" class="form-label">Default Document</label>
+        <span class="small text-muted">index.php index.html index.htm default.php default.html default.htm</span>
+        <input type="text" class="form-control" id="title" name="defaultDocument"
+               value="index.php index.html">
     </div>
 
 
