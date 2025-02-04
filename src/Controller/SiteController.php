@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\ApacheService;
+use App\Service\PhpVersionService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +14,12 @@ class SiteController extends AbstractController
 {
     private SiteService $siteService;
 
-    public function __construct(SiteService $siteService)
+    private PhpVersionService $phpVersionService;
+
+    public function __construct(SiteService $siteService, PhpVersionService $phpVersionService)
     {
         $this->siteService = $siteService;
+        $this->phpVersionService = $phpVersionService;
     }
 
     /**
@@ -29,6 +33,7 @@ class SiteController extends AbstractController
 
         return $this->render('site/index.html.twig', [
             'pagination' => $pagination,
+            'phpVersions' => $this->phpVersionService->getList(),
         ]);
     }
 
@@ -66,6 +71,7 @@ class SiteController extends AbstractController
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
+                'phpVersions' => $this->phpVersionService->getList(),
                 'virtualHostConf' => $virtualHostConf,
                 'accessLog' => $accessLog,
                 'errorLog' => $errorLog,
