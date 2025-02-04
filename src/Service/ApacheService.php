@@ -129,4 +129,15 @@ final class ApacheService
             throw new ProcessFailedException($process);
         }
     }
+
+    public function getVirtualHostConf(Site $site): string
+    {
+        return $this->apacheVirtualHostFileService->get($site);
+    }
+
+    public function updateVirtualHostConf(Site $site, string $content): void
+    {
+        $this->apacheVirtualHostFileService->update($site, $content);
+        $this->restart();
+    }
 }

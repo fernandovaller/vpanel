@@ -1,0 +1,46 @@
+
+<form id="site-create-form" action="{{ path('app_site_update', {id: site.id}) }}"
+      method="POST" class="form-default"> 
+
+    <div class="form-group mb-3">
+        <label for="domain" class="form-label">Domain</label>
+        <input type="text" class="form-control" id="domain" name="domain"
+               value="{{ site.domain }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" name="title"
+               value="{{ site.title }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="phpVersion" class="form-label">Php Version</label>
+        {% set php_versions = ['5.6', '7.4', '8.0', '8.1', '8.2'] %}
+        <select name="phpVersion" id="phpVersion" class="form-control">
+            {% for version in php_versions %}
+                <option value="{{ version }}" {{ site.phpVersion == version ? 'selected' : '' }}>
+                    php{{ version }}-fpm
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group mb-4">
+        <label for="documentRoot" class="form-label">Document Root</label>
+        <input type="text" class="form-control" id="documentRoot"
+               name="documentRoot" value="{{ site.documentRoot }}">
+    </div>
+
+    <div class="d-flex px-0">
+        <a href="{{ path('app_apache_delete_site', {id: site.id}) }}"
+           class="btn btn-outline-danger me-auto">Delete</a>
+
+        <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="modal">Close</button>
+
+        <button type="submit" class="btn btn-success">
+            <i class="fa-regular fa-floppy-disk me-2"></i>
+            Save
+        </button>
+    </div>
+</form>

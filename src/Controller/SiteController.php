@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\ApacheService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,13 +54,15 @@ class SiteController extends AbstractController
     /**
      * @Route("/site/{id}/edit", name="app_site_edit", methods={"GET"})
      */
-    public function edit(int $id): Response
+    public function edit(int $id, ApacheService $apacheService): Response
     {
         try {
             $site = $this->siteService->get($id);
+            $virtualHostConf = $apacheService->getVirtualHostConf($site);
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
+                'virtualHostConf' => $virtualHostConf,
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\ApacheService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -61,6 +62,30 @@ class ApacheController extends AbstractController
             $this->siteService->delete($site);
 
             $this->addFlash('success', 'Arquivos de configuração foram removidos com sucesso!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/{id}/update-virtualhost", name="app_apache_update_virtualhost", methods={"POST"})
+     */
+    public function updateVirtualHost(Request $request, int $id): Response
+    {
+        try {
+            $virtualHostConf = $request->request->get('virtualHostConf');
+
+            $site = $this->siteService->get($id);
+
+            if ($site === null) {
+                throw new NotFoundHttpException('Site não existe!');
+            }
+
+            $this->apacheService->updateVirtualHostConf($site, $virtualHostConf);
+
+            $this->addFlash('success', 'Arquivo de configuração do site foi atualizado com sucesso!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

@@ -10,9 +10,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 final class ApacheVirtualHostFileService
 {
@@ -22,17 +19,31 @@ final class ApacheVirtualHostFileService
 
     protected ParameterBagInterface $parameterBag;
 
+    protected string $apacheVirtualHostPath;
+
     public function __construct(Environment $twig, ParameterBagInterface $parameterBag)
     {
         $this->filesystem = new Filesystem();
         $this->twig = $twig;
         $this->parameterBag = $parameterBag;
+        $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
+    }
+
+    public function get($site): string
+    {
+        $process = new Process(['sudo', 'cat', $site->getDomainConf()]);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 
     public function create(Site $site): void
     {
-        $apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
-
         $content = $this->generateContentVirtualHost($site);
         $content .= $this->generateContentVirtualHostWithSsl($site);
 
@@ -42,20 +53,36 @@ final class ApacheVirtualHostFileService
             "-c",
             "echo " . escapeshellarg($content) . " > " . escapeshellarg($site->getDomainConf()),
         ]);
-        $process->setWorkingDirectory($apacheVirtualHostPath);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
 
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
     }
-    
+
+    public function update(Site $site, string $content): void
+    {
+        $this->delete($site);
+
+        $process = new Process([
+            "sudo",
+            "bash",
+            "-c",
+            "echo " . escapeshellarg($content) . " > " . escapeshellarg($site->getDomainConf()),
+        ]);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
     public function delete(Site $site): void
     {
-        $apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
-
         $process = new Process(['sudo', 'rm', '-f', $site->getDomainConf()]);
-        $process->setWorkingDirectory($apacheVirtualHostPath);
+        $process->setWorkingDirectory($this->apacheVirtualHostPath);
         $process->run();
 
         if (!$process->isSuccessful()) {
