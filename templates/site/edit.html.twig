@@ -2,7 +2,7 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab1" data-bs-toggle="tab"
                 data-bs-target="#tab01" type="button" role="tab" aria-selected="true">
-            Site
+            Domain Manager
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -31,10 +31,17 @@
             User.ini
         </button>
     </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab6" data-bs-toggle="tab"
+                data-bs-target="#tab06" type="button" role="tab" aria-selected="false">
+            FPM Pool
+        </button>
+    </li>
 </ul>
 <div class="tab-content border border-top-0" id="myTabContent">
     <div class="tab-pane p-3 fade show active" id="tab01" role="tabpanel" tabindex="1">
-        {% include 'site/editSite.html.twig' %}
+        {% include 'site/editDomainManager.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab02" role="tabpanel" tabindex="2">
@@ -51,6 +58,10 @@
 
     <div class="tab-pane p-3 fade" id="tab05" role="tabpanel" tabindex="4">
         {% include 'site/editPhpUserIni.html.twig' %}
+    </div>
+
+    <div class="tab-pane p-3 fade" id="tab06" role="tabpanel" tabindex="4">
+        {% include 'site/editPhpFpmPool.html.twig' %}
     </div>
 </div>
 

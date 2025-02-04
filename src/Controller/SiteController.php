@@ -66,17 +66,19 @@ class SiteController extends AbstractController
         try {
             $site = $this->siteService->get($id);
             $virtualHostConf = $apacheService->getVirtualHostConf($site);
+            $userIni = $apacheService->getUserIni($site);
+            $fpmPool = $apacheService->getFpmPool($site);
             $accessLog = $apacheService->getAccessLog($site);
             $errorLog = $apacheService->getErrorLog($site);
-            $userIni = $apacheService->getUserIni($site);
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
                 'phpVersions' => $this->phpVersionService->getList(),
                 'virtualHostConf' => $virtualHostConf,
+                'userIni' => $userIni,
+                'fpmPool' => $fpmPool,
                 'accessLog' => $accessLog,
                 'errorLog' => $errorLog,
-                'userIni' => $userIni,
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());

@@ -88,7 +88,7 @@ class ApacheController extends AbstractController
 
             $this->apacheService->updateVirtualHostConf($site, $virtualHostConf);
 
-            $this->addFlash('success', 'Arquivo de configuração do site foi atualizado com sucesso!');
+            $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -99,7 +99,7 @@ class ApacheController extends AbstractController
     /**
      * @Route("/apache/{id}/userini", name="app_apache_userini", methods={"POST"})
      */
-    public function createUserIni(Request $request, int $id): Response
+    public function updateUserIni(Request $request, int $id): Response
     {
         try {
             $userIni = $request->request->get('userIni');
@@ -110,9 +110,33 @@ class ApacheController extends AbstractController
                 throw new NotFoundHttpException('Site não existe!');
             }
 
-            $this->apacheService->createUserIniFile($site, $userIni);
+            $this->apacheService->updateUserIniFile($site, $userIni);
 
-            $this->addFlash('success', 'Arquivo de configuração foi criado!');
+            $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/{id}/update-fpmpool", name="app_apache_update_fpmpool", methods={"POST"})
+     */
+    public function updateFpmPool(Request $request, int $id): Response
+    {
+        try {
+            $content = $request->request->get('fpmPool');
+
+            $site = $this->siteService->get($id);
+
+            if ($site === null) {
+                throw new NotFoundHttpException('Site não existe!');
+            }
+
+            $this->apacheService->updateFpmPoolFile($site, $content);
+
+            $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

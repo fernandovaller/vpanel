@@ -41,7 +41,7 @@ final class ApacheService
         $this->mkcertService->generate($site->getDomain());
         $this->enableSite($site->getDomainConf());
         $this->appendSiteInHosts($site->getDomain());
-        $this->restart();
+        $this->restartApache();
 
         $this->createFolder($site);
         $this->createFile($site);
@@ -53,7 +53,7 @@ final class ApacheService
         $this->apacheVirtualHostFileService->delete($site);
         $this->mkcertService->delete($site->getDomain());
         $this->disableSite($site->getDomainConf());
-        $this->restart();
+        $this->restartApache();
     }
 
     private function enableSite(string $fileName): void
@@ -82,9 +82,21 @@ final class ApacheService
         }
     }
 
-    private function restart(): void
+    private function restartApache(): void
     {
         $process = new Process(['sudo', 'service', 'apache2', 'reload']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
+    private function restartFpm(string $phpVersion): void
+    {
+        $phpFpmVersion = sprintf('php%s-fpm', $phpVersion);
+
+        $process = new Process(['sudo', 'systemctl', 'restart', $phpFpmVersion]);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -142,7 +154,7 @@ final class ApacheService
     public function updateVirtualHostConf(Site $site, string $content): void
     {
         $this->apacheVirtualHostFileService->update($site, $content);
-        $this->restart();
+        $this->restartApache();
     }
 
     public function getUserIni(Site $site): string
@@ -164,7 +176,7 @@ final class ApacheService
         return $process->getOutput();
     }
 
-    public function createUserIniFile(Site $site, string $content): void
+    public function updateUserIniFile(Site $site, string $content): void
     {
         $process = new Process([
             "sudo",
@@ -178,6 +190,52 @@ final class ApacheService
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
+
+        $this->setPermission($site);
+    }
+
+    public function getFpmPool(Site $site): string
+    {
+        $fileName = $site->getDomainConf();
+
+        $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
+
+        if (!$this->filesystem->exists($workingDirectory . $fileName)) {
+            return '';
+        }
+
+        $process = new Process(['sudo', 'cat', $fileName]);
+        $process->setWorkingDirectory($workingDirectory);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function updateFpmPoolFile(Site $site, string $content): void
+    {
+        $fileName = $site->getDomainConf();
+
+        $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
+
+        $process = new Process([
+            "sudo",
+            "bash",
+            "-c",
+            "echo " . escapeshellarg($content) . " > " . escapeshellarg($fileName),
+        ]);
+        $process->setWorkingDirectory($workingDirectory);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $this->restartFpm($site->getPhpVersion());
+        $this->restartApache();
     }
 
     public function getAccessLog(Site $site, int $numberLines = 20): string
