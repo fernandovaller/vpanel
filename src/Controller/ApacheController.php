@@ -38,7 +38,7 @@ class ApacheController extends AbstractController
 
             $this->apacheService->create($site);
 
-            $this->addFlash('success', 'Arquivos de configuração foram criados com sucesso!');
+            $this->addFlash('success', 'Site ativo! Os arquivos de configuração foram criados!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -61,7 +61,10 @@ class ApacheController extends AbstractController
             $this->apacheService->delete($site);
             $this->siteService->delete($site);
 
-            $this->addFlash('success', 'Arquivos de configuração foram removidos com sucesso!');
+            $this->addFlash(
+                'success',
+                'Site removido! Os arquivos de configuração também foram removidos!'
+            );
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

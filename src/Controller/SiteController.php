@@ -49,7 +49,7 @@ class SiteController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Configuração foi criada com sucesso! Rode o comando para gerar os arquivos!'
+                'Site criado! Execute o comando para gerar os arquivos de configuração!'
             );
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
@@ -95,7 +95,7 @@ class SiteController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Configuração alterada com sucesso! Rode o comando para atualizar os arquivos!'
+                'Site atualizado! Execute o comando para gerar os arquivos de configuração!'
             );
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
