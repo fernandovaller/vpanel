@@ -145,6 +145,25 @@ final class ApacheService
         $this->restart();
     }
 
+    public function getUserIni(Site $site): string
+    {
+        $fileName = '.user.ini';
+
+        if (!$this->filesystem->exists($site->getDocumentRoot() . DIRECTORY_SEPARATOR . $fileName)) {
+            return '';
+        }
+
+        $process = new Process(['sudo', 'cat', $fileName]);
+        $process->setWorkingDirectory($site->getDocumentRoot());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
     public function createUserIniFile(Site $site, string $content): void
     {
         $process = new Process([

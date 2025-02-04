@@ -68,6 +68,7 @@ class SiteController extends AbstractController
             $virtualHostConf = $apacheService->getVirtualHostConf($site);
             $accessLog = $apacheService->getAccessLog($site);
             $errorLog = $apacheService->getErrorLog($site);
+            $userIni = $apacheService->getUserIni($site);
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
@@ -75,6 +76,7 @@ class SiteController extends AbstractController
                 'virtualHostConf' => $virtualHostConf,
                 'accessLog' => $accessLog,
                 'errorLog' => $errorLog,
+                'userIni' => $userIni,
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
