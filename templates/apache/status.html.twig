@@ -1,21 +1,21 @@
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab01" data-bs-toggle="tab"
-                data-bs-target="#tabPanel01" type="button" role="tab"
-                aria-controls="tabPanel01" aria-selected="true">Service
+        <button class="nav-link active" id="apacheTab01" data-bs-toggle="tab"
+                data-bs-target="#apacheTabPanel01" type="button" role="tab"
+                aria-controls="apacheTabPanel01" aria-selected="true">Service
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab02" data-bs-toggle="tab"
-                data-bs-target="#tabPanel02" type="button" role="tab"
-                aria-controls="tabPanel02" aria-selected="false">
+        <button class="nav-link" id="apacheTab02" data-bs-toggle="tab"
+                data-bs-target="#apacheTabPanel02" type="button" role="tab"
+                aria-controls="apacheTabPanel02" aria-selected="false">
             Configuration
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab03" data-bs-toggle="tab"
-                data-bs-target="#tabPanel03" type="button" role="tab"
-                aria-controls="tabPanel03" aria-selected="false">
+        <button class="nav-link" id="apacheTab03" data-bs-toggle="tab"
+                data-bs-target="#apacheTabPanel03" type="button" role="tab"
+                aria-controls="apacheTabPanel03" aria-selected="false">
             Log
         </button>
     </li>
@@ -23,8 +23,8 @@
 
 <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade p-3 border border-top-0 show active"
-         id="tabPanel01" role="tabpanel"
-         aria-labelledby="tab01" tabindex="0">
+         id="apacheTabPanel01" role="tabpanel"
+         aria-labelledby="apacheTab01" tabindex="0">
 
         <p class="my-4 h5">
             Current
@@ -49,16 +49,46 @@
         </div>
     </div>
 
-    <div class="tab-pane p-3 border border-top-0 fade" id="tabPanel02"
+    <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel02"
          role="tabpanel"
-         aria-labelledby="tab02" tabindex="0">
-        Configuration ...
+         aria-labelledby="apacheTab02" tabindex="0">
+        <form id="site-create-form"
+              action="{{ path('app_apache_update_conf') }}"
+              method="POST">
+
+            <div class="form-group mb-4">
+                <textarea cols="30" rows="20" class="form-control block-code" name="apacheConf"
+                          spellcheck="false">{{ apacheConf }}</textarea>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-regular fa-floppy-disk me-2"></i> Save
+                </button>
+            </div>
+
+        </form>
     </div>
 
-    <div class="tab-pane p-3 border border-top-0 fade" id="tabPanel03"
+    <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel03"
          role="tabpanel"
-         aria-labelledby="tab03" tabindex="0">
-        Log ...
+         aria-labelledby="apacheTab03" tabindex="0">
+        <pre class="mb-0"><code class="language-accesslog">{{ apacheLog }}</code></pre>
     </div>
 
 </div>
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            hljs.configure({ ignoreUnescapedHTML: true });
+
+            $('code').each((i, el) => {
+                if (el.dataset.highlighted) {
+                    delete el.dataset.highlighted;
+                }
+                hljs.highlightElement(el);
+            });
+        });
+    </script>
+{% endblock %}

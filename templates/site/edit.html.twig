@@ -68,7 +68,14 @@
 {% block javascripts %}
     <script>
         $(document).ready(function () {
-            hljs.highlightAll();
+            hljs.configure({ ignoreUnescapedHTML: true });
+
+            $('code').each((i, el) => {
+                if (el.dataset.highlighted) {
+                    delete el.dataset.highlighted;
+                }
+                hljs.highlightElement(el);
+            });
         });
     </script>
 {% endblock %}

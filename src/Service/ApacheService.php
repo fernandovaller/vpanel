@@ -114,6 +114,10 @@ final class ApacheService
 
     public function restartApache(): void
     {
+        if ($this->isRunning() === false) {
+            return;
+        }
+
         $process = new Process(['sudo', 'service', 'apache2', 'restart']);
         $process->run();
 
@@ -317,5 +321,64 @@ final class ApacheService
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
+    }
+
+    public function getApacheConf(): string
+    {
+        $path = '/etc/apache2/apache2.conf';
+
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
+
+        $process = new Process(['sudo', 'cat', $path]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function updateApacheConf(string $content): void
+    {
+        if (empty($content)) {
+            throw new \Exception('Empty apache conf');
+        }
+
+        $fileName = '/etc/apache2/apache2.conf';
+        $command = sprintf('echo %s > %s', escapeshellarg($content), escapeshellarg($fileName));
+
+        $process = new Process(['sudo', 'bash', '-c', $command]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $this->restartApache();
+    }
+
+    public function getApacheError(int $numberLines = 20): string
+    {
+        $path = '/var/log/apache2/error.log';
+        $lines = '-' . $numberLines;
+
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
+
+        $process = new Process(["sudo", "tail", $lines, $path]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 }

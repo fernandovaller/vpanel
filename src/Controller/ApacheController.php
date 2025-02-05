@@ -32,6 +32,8 @@ class ApacheController extends AbstractController
         try {
             return $this->render('apache/status.html.twig', [
                 'apacheStatus' => $this->apacheService->isRunning(),
+                'apacheConf' => $this->apacheService->getApacheConf(),
+                'apacheLog' => $this->apacheService->getApacheError(),
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
@@ -199,6 +201,24 @@ class ApacheController extends AbstractController
             }
 
             $this->apacheService->updateFpmPoolFile($site, $content);
+
+            $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/update-conf", name="app_apache_update_conf", methods={"POST"})
+     */
+    public function updateConf(Request $request): Response
+    {
+        try {
+            $content = $request->request->get('apacheConf');
+
+            $this->apacheService->updateApacheConf($content);
 
             $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {
