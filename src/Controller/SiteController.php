@@ -34,7 +34,7 @@ class SiteController extends AbstractController
         return $this->render('site/index.html.twig', [
             'pagination' => $pagination,
             'phpVersions' => $this->phpVersionService->getList(),
-            'apacheStatus' => $apacheService->getStatusApache(),
+            'apacheStatus' => $apacheService->isRunning(),
         ]);
     }
 

@@ -82,7 +82,7 @@ final class ApacheService
         }
     }
 
-    public function getStatusApache(): bool
+    public function isRunning(): bool
     {
         $process = new Process(['systemctl', 'is-active', 'apache2']);
         $process->run();

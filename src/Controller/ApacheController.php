@@ -25,6 +25,22 @@ class ApacheController extends AbstractController
     }
 
     /**
+     * @Route("/apache/info", name="app_apache_info", methods={"GET"})
+     */
+    public function info(): Response
+    {
+        try {
+            return $this->render('apache/status.html.twig', [
+                'apacheStatus' => $this->apacheService->isRunning(),
+            ]);
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
      * @Route("/apache/start", name="app_apache_start", methods={"GET"})
      */
     public function start(): Response

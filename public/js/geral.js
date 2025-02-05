@@ -60,6 +60,18 @@ $(document).on('click', '.btnConfirmar', function (event) {
 
 });
 
+
+$(document).on('show.bs.modal', '#modalApacheStatus', function (event) {
+    const button = event.relatedTarget;
+
+    let route = button.getAttribute('data-route');
+    let target = button.getAttribute('data-target');
+
+    $.get(route, function (data) {
+        $(target).html(data ?? '');
+    });
+});
+
 // document.addEventListener('DOMContentLoaded', function () {
 //     setTimeout(function () {
 //         let alerts = document.querySelectorAll('.alert-dismissible');
