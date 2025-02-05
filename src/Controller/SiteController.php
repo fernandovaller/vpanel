@@ -25,7 +25,7 @@ class SiteController extends AbstractController
     /**
      * @Route("/", name="app_site_index", methods={"GET"})
      */
-    public function index(Request $request): Response
+    public function index(Request $request, ApacheService $apacheService): Response
     {
         $page = $request->query->getInt('page', 1);
 
@@ -34,6 +34,7 @@ class SiteController extends AbstractController
         return $this->render('site/index.html.twig', [
             'pagination' => $pagination,
             'phpVersions' => $this->phpVersionService->getList(),
+            'apacheStatus' => $apacheService->getStatusApache(),
         ]);
     }
 

@@ -82,9 +82,39 @@ final class ApacheService
         }
     }
 
-    private function restartApache(): void
+    public function getStatusApache(): bool
     {
-        $process = new Process(['sudo', 'service', 'apache2', 'reload']);
+        $process = new Process(['systemctl', 'is-active', 'apache2']);
+        $process->run();
+
+        $status = preg_replace("/[^a-zA-Z]+/", '', $process->getOutput());;
+
+        return $status === 'active';
+    }
+
+    public function startApache(): void
+    {
+        $process = new Process(['sudo', 'service', 'apache2', 'start']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
+    public function stopApache(): void
+    {
+        $process = new Process(['sudo', 'service', 'apache2', 'stop']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
+
+    public function restartApache(): void
+    {
+        $process = new Process(['sudo', 'service', 'apache2', 'restart']);
         $process->run();
 
         if (!$process->isSuccessful()) {

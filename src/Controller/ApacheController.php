@@ -25,6 +25,54 @@ class ApacheController extends AbstractController
     }
 
     /**
+     * @Route("/apache/start", name="app_apache_start", methods={"GET"})
+     */
+    public function start(): Response
+    {
+        try {
+            $this->apacheService->startApache();
+
+            $this->addFlash('success', 'Apache started successfully.!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/stop", name="app_apache_stop", methods={"GET"})
+     */
+    public function stop(): Response
+    {
+        try {
+            $this->apacheService->stopApache();
+
+            $this->addFlash('success', 'Apache stop successfully.!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/apache/restart", name="app_apache_restart", methods={"GET"})
+     */
+    public function restart(): Response
+    {
+        try {
+            $this->apacheService->restartApache();
+
+            $this->addFlash('success', 'Apache restarted successfully.!');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
      * @Route("/apache/{id}/create", name="app_apache_create_site", methods={"GET"})
      */
     public function createSite(int $id): Response
