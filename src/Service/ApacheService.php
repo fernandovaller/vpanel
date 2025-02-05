@@ -90,7 +90,7 @@ final class ApacheService
     {
         $command = ['systemctl', 'is-active', 'apache2'];
 
-        $output = $this->bashScriptService->runCommandWithReturn($command);
+        $output = $this->bashScriptService->runCommandWithReturn($command, null, false);
 
         $status = preg_replace("/[^a-zA-Z]+/", '', $output);;
 

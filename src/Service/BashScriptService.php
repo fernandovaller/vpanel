@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 
 final class BashScriptService
 {
-    public function runCommandWithReturn(array $command, ?string $workingDirectory = null): string
+    public function runCommandWithReturn(array $command, ?string $workingDirectory = null, bool $throw = true): string
     {
         $process = new Process($command);
 
@@ -19,7 +19,7 @@ final class BashScriptService
 
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (!$process->isSuccessful() && $throw === true) {
             throw new ProcessFailedException($process);
         }
 
