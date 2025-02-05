@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\ApacheService;
+use App\Service\ApacheVirtualHostService;
 use App\Service\PhpVersionService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,12 +15,9 @@ class SiteController extends AbstractController
 {
     private SiteService $siteService;
 
-    private PhpVersionService $phpVersionService;
-
-    public function __construct(SiteService $siteService, PhpVersionService $phpVersionService)
+    public function __construct(SiteService $siteService)
     {
         $this->siteService = $siteService;
-        $this->phpVersionService = $phpVersionService;
     }
 
     /**
@@ -33,15 +31,30 @@ class SiteController extends AbstractController
 
         return $this->render('site/index.html.twig', [
             'pagination' => $pagination,
-            'phpVersions' => $this->phpVersionService->getList(),
             'apacheStatus' => $apacheService->isRunning(),
         ]);
     }
 
     /**
-     * @Route("/site/create", name="app_site_create", methods={"POST"})
+     * @Route("/site/create", name="app_site_create", methods={"GET"})
      */
-    public function create(Request $request): Response
+    public function create(PhpVersionService $phpVersionService): Response
+    {
+        try {
+            return $this->render('site/create.html.twig', [
+                'phpVersions' => $phpVersionService->getList(),
+            ]);
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_site_index');
+    }
+
+    /**
+     * @Route("/site/store", name="app_site_store", methods={"POST"})
+     */
+    public function store(Request $request): Response
     {
         try {
             $requestData = $request->request->all();
@@ -62,24 +75,18 @@ class SiteController extends AbstractController
     /**
      * @Route("/site/{id}/edit", name="app_site_edit", methods={"GET"})
      */
-    public function edit(int $id, ApacheService $apacheService): Response
-    {
+    public function edit(
+        int $id,
+        PhpVersionService $phpVersionService,
+        ApacheService $apacheService
+    ): Response {
         try {
             $site = $this->siteService->get($id);
-            $virtualHostConf = $apacheService->getVirtualHostConf($site);
-            $userIni = $apacheService->getUserIni($site);
-            $fpmPool = $apacheService->getFpmPool($site);
-            $accessLog = $apacheService->getAccessLog($site);
-            $errorLog = $apacheService->getErrorLog($site);
 
             return $this->render('site/edit.html.twig', [
                 'site' => $site,
-                'phpVersions' => $this->phpVersionService->getList(),
-                'virtualHostConf' => $virtualHostConf,
-                'userIni' => $userIni,
-                'fpmPool' => $fpmPool,
-                'accessLog' => $accessLog,
-                'errorLog' => $errorLog,
+                'phpVersions' => $phpVersionService->getList(),
+                'apacheVirtualHostDto' => $apacheService->getInfo($site),
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());

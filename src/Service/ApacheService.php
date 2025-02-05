@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ApacheVirtualHostDto;
 use App\Entity\Site;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 final class ApacheService
 {
     protected ParameterBagInterface $parameterBag;
 
-    protected ApacheVirtualHostFileService $apacheVirtualHostFileService;
+    protected ApacheVirtualHostService $apacheVirtualHostService;
 
     protected MkcertService $mkcertService;
 
@@ -22,49 +21,58 @@ final class ApacheService
 
     private Filesystem $filesystem;
 
+    private SiteService $siteService;
+
+    private BashScriptService $bashScriptService;
+
     public function __construct(
         ParameterBagInterface $parameterBag,
-        ApacheVirtualHostFileService $apacheVirtualHostFileService,
-        MkcertService $mkcertService
-
+        ApacheVirtualHostService $apacheVirtualHostService,
+        MkcertService $mkcertService,
+        SiteService $siteService,
+        BashScriptService $bashScriptService
     ) {
         $this->parameterBag = $parameterBag;
-        $this->apacheVirtualHostFileService = $apacheVirtualHostFileService;
+        $this->apacheVirtualHostService = $apacheVirtualHostService;
         $this->mkcertService = $mkcertService;
         $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
         $this->filesystem = new Filesystem();
+        $this->siteService = $siteService;
+        $this->bashScriptService = $bashScriptService;
     }
 
-    public function create(Site $site): void
+    public function create(int $id): void
     {
-        $this->apacheVirtualHostFileService->create($site);
+        $site = $this->siteService->getOrException($id);
+
+        $this->apacheVirtualHostService->create($site);
         $this->mkcertService->generate($site->getDomain());
         $this->enableSite($site->getDomainConf());
         $this->appendSiteInHosts($site->getDomain());
-        $this->restartApache();
+        $this->restart();
 
         $this->createFolder($site);
         $this->createFile($site);
         $this->setPermission($site);
     }
 
-    public function delete(Site $site): void
+    public function delete(int $id): void
     {
-        $this->apacheVirtualHostFileService->delete($site);
+        $site = $this->siteService->getOrException($id);
+
+        $this->apacheVirtualHostService->delete($site);
         $this->mkcertService->delete($site->getDomain());
         $this->disableSite($site->getDomainConf());
-        $this->restartApache();
+        $this->restart();
+
+        $this->siteService->delete($site);
     }
 
     private function enableSite(string $fileName): void
     {
-        $process = new Process(['sudo', 'a2ensite', $fileName]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $command = ['sudo', 'a2ensite', $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $this->apacheVirtualHostPath);
     }
 
     private function disableSite(string $fileName): void
@@ -73,97 +81,84 @@ final class ApacheService
             return;
         }
 
-        $process = new Process(['sudo', 'a2dissite', $fileName]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $command = ['sudo', 'a2dissite', $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $this->apacheVirtualHostPath);
     }
 
     public function isRunning(): bool
     {
-        $process = new Process(['systemctl', 'is-active', 'apache2']);
-        $process->run();
+        $command = ['systemctl', 'is-active', 'apache2'];
 
-        $status = preg_replace("/[^a-zA-Z]+/", '', $process->getOutput());;
+        $output = $this->bashScriptService->runCommandWithReturn($command);
+
+        $status = preg_replace("/[^a-zA-Z]+/", '', $output);;
 
         return $status === 'active';
     }
 
-    public function startApache(): void
+    public function start(): void
     {
-        $process = new Process(['sudo', 'service', 'apache2', 'start']);
-        $process->run();
+        $command = ['sudo', 'service', 'apache2', 'start'];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 
-    public function stopApache(): void
+    public function stop(): void
     {
-        $process = new Process(['sudo', 'service', 'apache2', 'stop']);
-        $process->run();
+        $command = ['sudo', 'service', 'apache2', 'stop'];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 
-    public function restartApache(): void
+    public function restart(): void
     {
         if ($this->isRunning() === false) {
             return;
         }
 
-        $process = new Process(['sudo', 'service', 'apache2', 'restart']);
-        $process->run();
+        $command = ['sudo', 'service', 'apache2', 'restart'];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 
-    private function restartFpm(string $phpVersion): void
+    public function reload(): void
+    {
+        if ($this->isRunning() === false) {
+            return;
+        }
+
+        $command = ['sudo', 'service', 'apache2', 'reload'];
+
+        $this->bashScriptService->runCommandWithoutReturn($command);
+    }
+
+    private function restartPhpFpm(string $phpVersion): void
     {
         $phpFpmVersion = sprintf('php%s-fpm', $phpVersion);
 
-        $process = new Process(['sudo', 'systemctl', 'restart', $phpFpmVersion]);
-        $process->run();
+        $command = ['sudo', 'systemctl', 'restart', $phpFpmVersion];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 
     private function createFolder(Site $site): void
     {
-        $process = new Process(['sudo', 'mkdir', '-p', $site->getDocumentRoot()]);
-        $process->run();
+        $command = ['sudo', 'mkdir', '-p', $site->getDocumentRoot()];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 
     private function createFile(Site $site): void
     {
-        $content = '<?php echo phpinfo();';
+        $fileName = 'index.php';
+        $fileContent = '<?php echo phpinfo();';
 
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " > " . escapeshellarg('index.php'),
-        ]);
-        $process->setWorkingDirectory($site->getDocumentRoot());
-        $process->run();
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($fileContent), escapeshellarg($fileName));
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $command = ['sudo', 'bash', '-c', $commandContent];
+
+        $this->bashScriptService->runCommandWithoutReturn($command, $site->getDocumentRoot());
     }
 
     private function appendSiteInHosts(string $domain): void
@@ -172,213 +167,105 @@ final class ApacheService
 
         $command = sprintf('grep -qxF "%s" /etc/hosts || echo "%s" | sudo tee -a /etc/hosts', $domainRow, $domainRow);
 
-        $process = Process::fromShellCommandline($command);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandLineWithoutReturn($command);
     }
 
-    public function getVirtualHostConf(Site $site): string
+    public function updateUserIniFile(int $siteId, string $content): void
     {
-        return $this->apacheVirtualHostFileService->get($site);
-    }
+        $site = $this->siteService->getOrException($siteId);
 
-    public function updateVirtualHostConf(Site $site, string $content): void
-    {
-        $this->apacheVirtualHostFileService->update($site, $content);
-        $this->restartApache();
-    }
-
-    public function getUserIni(Site $site): string
-    {
         $fileName = '.user.ini';
+        $fileContent = $content;
 
-        if (!$this->filesystem->exists($site->getDocumentRoot() . DIRECTORY_SEPARATOR . $fileName)) {
-            return '';
-        }
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($fileContent), escapeshellarg($fileName));
 
-        $process = new Process(['sudo', 'cat', $fileName]);
-        $process->setWorkingDirectory($site->getDocumentRoot());
-        $process->run();
+        $command = ['sudo', 'bash', '-c', $commandContent];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
-    }
-
-    public function updateUserIniFile(Site $site, string $content): void
-    {
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " > " . escapeshellarg('.user.ini'),
-        ]);
-        $process->setWorkingDirectory($site->getDocumentRoot());
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $site->getDocumentRoot());
 
         $this->setPermission($site);
     }
 
-    public function getFpmPool(Site $site): string
+    public function updateFpmPoolFile(int $siteId, string $content): void
     {
+        $site = $this->siteService->getOrException($siteId);
+
         $fileName = $site->getDomainConf();
+        $fileContent = $content;
 
         $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
 
-        if (!$this->filesystem->exists($workingDirectory . $fileName)) {
-            return '';
-        }
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($fileContent), escapeshellarg($fileName));
 
-        $process = new Process(['sudo', 'cat', $fileName]);
-        $process->setWorkingDirectory($workingDirectory);
-        $process->run();
+        $command = ['sudo', 'bash', '-c', $commandContent];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $workingDirectory);
 
-        return $process->getOutput();
-    }
-
-    public function updateFpmPoolFile(Site $site, string $content): void
-    {
-        $fileName = $site->getDomainConf();
-
-        $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
-
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " > " . escapeshellarg($fileName),
-        ]);
-        $process->setWorkingDirectory($workingDirectory);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $this->restartFpm($site->getPhpVersion());
-        $this->restartApache();
-    }
-
-    public function getAccessLog(Site $site, int $numberLines = 20): string
-    {
-        $path = '/var/log/apache2/' . $site->getAccessLog();
-        $lines = '-' . $numberLines;
-
-        if (!$this->filesystem->exists($path)) {
-            return '';
-        }
-
-        $process = new Process(["sudo", "tail", $lines, $path]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
-    }
-
-    public function getErrorLog(Site $site, int $numberLines = 20): string
-    {
-        $path = '/var/log/apache2/' . $site->getErrorLog();
-        $lines = '-' . $numberLines;
-
-        if (!$this->filesystem->exists($path)) {
-            return '';
-        }
-
-        $process = new Process(["sudo", "tail", $lines, $path]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        $this->restartPhpFpm($site->getPhpVersion());
+        $this->restart();
     }
 
     public function setPermission(Site $site): void
     {
-        $path = $site->getSiteDirectory();
+        $siteDirectory = $site->getSiteDirectory();
 
-        $process = new Process(['sudo', 'chown', 'www-data:www-data', $path, '-R']);
-        $process->setWorkingDirectory(dirname($path, 1));
-        $process->run();
+        $command = ['sudo', 'chown', 'www-data:www-data', $siteDirectory, '-R'];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, dirname($siteDirectory, 1));
     }
 
     public function getApacheConf(): string
     {
-        $path = '/etc/apache2/apache2.conf';
+        $fileName = '/etc/apache2/apache2.conf';
 
-        if (!$this->filesystem->exists($path)) {
+        if (!$this->filesystem->exists($fileName)) {
             return '';
         }
 
-        $process = new Process(['sudo', 'cat', $path]);
-        $process->run();
+        $command = ['sudo', 'cat', $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command);
     }
 
-    /**
-     * @throws \Exception
-     */
     public function updateApacheConf(string $content): void
     {
         if (empty($content)) {
-            throw new \Exception('Empty apache conf');
+            throw new \LogicException('Empty apache conf');
         }
 
         $fileName = '/etc/apache2/apache2.conf';
-        $command = sprintf('echo %s > %s', escapeshellarg($content), escapeshellarg($fileName));
+        $fileContent = $content;
 
-        $process = new Process(['sudo', 'bash', '-c', $command]);
-        $process->run();
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($fileContent), escapeshellarg($fileName));
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $command = ['sudo', 'bash', '-c', $commandContent];
 
-        $this->restartApache();
+        $this->bashScriptService->runCommandWithoutReturn($command);
+
+        $this->restart();
     }
 
-    public function getApacheError(int $numberLines = 20): string
+    public function getApacheError(int $lines = 20): string
     {
-        $path = '/var/log/apache2/error.log';
-        $lines = '-' . $numberLines;
+        $fileName = '/var/log/apache2/error.log';
+        $numberOfLines = '-' . $lines;
 
-        if (!$this->filesystem->exists($path)) {
+        if (!$this->filesystem->exists($fileName)) {
             return '';
         }
 
-        $process = new Process(["sudo", "tail", $lines, $path]);
-        $process->run();
+        $command = ['sudo', 'tail', $numberOfLines, $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        return $this->bashScriptService->runCommandWithReturn($command);
+    }
 
-        return $process->getOutput();
+    public function getInfo(?Site $site): ApacheVirtualHostDto
+    {
+        return ApacheVirtualHostDto::create()
+            ->setVirtualHost($this->apacheVirtualHostService->get($site))
+            ->setUserIni($this->apacheVirtualHostService->getUserIni($site))
+            ->setFpmPool($this->apacheVirtualHostService->getFpmPool($site))
+            ->setAccessLog($this->apacheVirtualHostService->getAccessLog($site))
+            ->setErrorLog($this->apacheVirtualHostService->getErrorLog($site));
     }
 }

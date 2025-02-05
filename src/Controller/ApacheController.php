@@ -7,7 +7,6 @@ use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApacheController extends AbstractController
@@ -48,7 +47,7 @@ class ApacheController extends AbstractController
     public function start(): Response
     {
         try {
-            $this->apacheService->startApache();
+            $this->apacheService->start();
 
             $this->addFlash('success', 'Apache started successfully.!');
         } catch (\Exception $exception) {
@@ -64,7 +63,7 @@ class ApacheController extends AbstractController
     public function stop(): Response
     {
         try {
-            $this->apacheService->stopApache();
+            $this->apacheService->stop();
 
             $this->addFlash('success', 'Apache stop successfully.!');
         } catch (\Exception $exception) {
@@ -80,81 +79,9 @@ class ApacheController extends AbstractController
     public function restart(): Response
     {
         try {
-            $this->apacheService->restartApache();
+            $this->apacheService->restart();
 
             $this->addFlash('success', 'Apache restarted successfully.!');
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('app_site_index');
-    }
-
-    /**
-     * @Route("/apache/{id}/create", name="app_apache_create_site", methods={"GET"})
-     */
-    public function createSite(int $id): Response
-    {
-        try {
-            $site = $this->siteService->get($id);
-
-            if ($site === null) {
-                throw new NotFoundHttpException('Site não existe!');
-            }
-
-            $this->apacheService->create($site);
-
-            $this->addFlash('success', 'Site ativo! Os arquivos de configuração foram criados!');
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('app_site_index');
-    }
-
-    /**
-     * @Route("/apache/{id}/delete", name="app_apache_delete_site", methods={"GET"})
-     */
-    public function deleteSite(int $id): Response
-    {
-        try {
-            $site = $this->siteService->get($id);
-
-            if ($site === null) {
-                throw new NotFoundHttpException('Site não existe!');
-            }
-
-            $this->apacheService->delete($site);
-            $this->siteService->delete($site);
-
-            $this->addFlash(
-                'success',
-                'Site removido! Os arquivos de configuração também foram removidos!'
-            );
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', $exception->getMessage());
-        }
-
-        return $this->redirectToRoute('app_site_index');
-    }
-
-    /**
-     * @Route("/apache/{id}/update-virtualhost", name="app_apache_update_virtualhost", methods={"POST"})
-     */
-    public function updateVirtualHost(Request $request, int $id): Response
-    {
-        try {
-            $virtualHostConf = $request->request->get('virtualHostConf');
-
-            $site = $this->siteService->get($id);
-
-            if ($site === null) {
-                throw new NotFoundHttpException('Site não existe!');
-            }
-
-            $this->apacheService->updateVirtualHostConf($site, $virtualHostConf);
-
-            $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -168,15 +95,9 @@ class ApacheController extends AbstractController
     public function updateUserIni(Request $request, int $id): Response
     {
         try {
-            $userIni = $request->request->get('userIni');
+            $content = $request->request->get('userIni');
 
-            $site = $this->siteService->get($id);
-
-            if ($site === null) {
-                throw new NotFoundHttpException('Site não existe!');
-            }
-
-            $this->apacheService->updateUserIniFile($site, $userIni);
+            $this->apacheService->updateUserIniFile($id, $content);
 
             $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {
@@ -194,13 +115,7 @@ class ApacheController extends AbstractController
         try {
             $content = $request->request->get('fpmPool');
 
-            $site = $this->siteService->get($id);
-
-            if ($site === null) {
-                throw new NotFoundHttpException('Site não existe!');
-            }
-
-            $this->apacheService->updateFpmPoolFile($site, $content);
+            $this->apacheService->updateFpmPoolFile($id, $content);
 
             $this->addFlash('success', 'Arquivo de configuração foi atualizado!');
         } catch (\Exception $exception) {

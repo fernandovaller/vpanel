@@ -1,4 +1,4 @@
-<form id="site-create-form" action="{{ path('app_site_create') }}"
+<form id="site-create-form" action="{{ path('app_site_store') }}"
       method="POST">
 
     <div class="form-group mb-3">
@@ -30,7 +30,6 @@
                name="documentRoot" value="/var/www/">
     </div>
 
-
     <div class="form-group mb-3">
         <label for="title" class="form-label">Site Directory</label>
         <span class="small text-muted">/var/www/site/</span>
@@ -43,8 +42,7 @@
         <input type="text" class="form-control" id="title" name="defaultDocument"
                value="index.php index.html">
     </div>
-
-
+    
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-success">

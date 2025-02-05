@@ -41,27 +41,27 @@
 </ul>
 <div class="tab-content border border-top-0" id="myTabContent">
     <div class="tab-pane p-3 fade show active" id="tab01" role="tabpanel" tabindex="1">
-        {% include 'site/editDomainManager.html.twig' %}
+        {% include 'site/domainManager.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab02" role="tabpanel" tabindex="2">
-        {% include 'site/editVirtualHost.html.twig' %}
+        {% include 'apache_virtual_host/edit.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab03" role="tabpanel" tabindex="3">
-        {% include 'site/editAccessLog.html.twig' %}
+        {% include 'apache_virtual_host/access.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab04" role="tabpanel" tabindex="4">
-        {% include 'site/editErrorLog.html.twig' %}
+        {% include 'apache_virtual_host/error.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab05" role="tabpanel" tabindex="4">
-        {% include 'site/editPhpUserIni.html.twig' %}
+        {% include 'apache_virtual_host/userIni.html.twig' %}
     </div>
 
     <div class="tab-pane p-3 fade" id="tab06" role="tabpanel" tabindex="4">
-        {% include 'site/editPhpFpmPool.html.twig' %}
+        {% include 'apache_virtual_host/fpmPool.html.twig' %}
     </div>
 </div>
 

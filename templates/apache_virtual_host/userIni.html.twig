@@ -1,11 +1,11 @@
-<p>Cria um arquivo de configuração do PHP-FPM Pool.</p>
-<form id="site-create-form" action="{{ path('app_apache_update_fpmpool', {id: site.id}) }}"
+<p>Cria um arquivo `.user.ini` no Document Root do site.</p>
+<form id="site-create-form" action="{{ path('app_apache_userini', {id: site.id}) }}"
       method="POST">
 
     <div class="form-group mb-4">
         <textarea cols="30" rows="10" class="form-control block-code"
-                  id="fpmPool"
-                  name="fpmPool" spellcheck="false">{{ fpmPool }}</textarea>
+                  id="userIni"
+                  name="userIni" spellcheck="false">{{ apacheVirtualHostDto.userIni }}</textarea>
     </div>
 
     <div class="text-end">
@@ -20,9 +20,8 @@
 
 <div class="text-secondary">
     <p>Exemplo de configuração</p>
-    <pre><code class="language-ini">[www]
-php_admin_value[upload_max_filesize] = 50M
-php_admin_value[post_max_size] = 50M
-php_admin_value[memory_limit] = 512M
+    <pre><code class="language-ini">upload_max_filesize = 50M
+post_max_size = 50M
+memory_limit = 256M
 </code></pre>
 </div>

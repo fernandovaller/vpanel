@@ -11,7 +11,7 @@
             <h2><i class="fa-solid fa-link me-1"></i> Sites</h2>
         </div>
         <div class="col-6 text-end">
-            <button class="btn btn-outline-{{ apacheStatus ? 'success' : 'danger' }} me-4"
+            <button class="btn btn-outline-{{ apacheStatus ? 'success' : 'danger' }} me-5"
                     data-bs-toggle="modal"
                     data-bs-target="#modalApacheStatus"
                     data-route="{{ path('app_apache_info') }}"
@@ -19,13 +19,14 @@
                 Apache is {{ apacheStatus ? 'active' : 'inactive' }}
             </button>
 
-            <div class="btn-group">
-                <a href="javascript:void(0);" class="btn btn-primary"
-                   data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <i class="fa-regular fa-file me-2"></i>
-                    New site
-                </a>
-            </div>
+            <button class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCreate"
+                    data-route="{{ path('app_site_create') }}"
+                    data-target="#modalCreate .modal-body">
+                <i class="fa-regular fa-file me-2"></i>
+                New site
+            </button>
         </div>
     </div>
 
@@ -58,7 +59,7 @@
                         <a href="javascript:void(0);"
                            class="btnConfirmar"
                            title="Criar ou atualizar configurações"
-                           data-route="{{ path('app_apache_create_site', {id: site.id}) }}"
+                           data-route="{{ path('app_apache_virtualhost_create', {id: site.id}) }}"
                            data-title="Gerar Arquivos?"
                            data-msg="Esse processo irá gerar ou atualizar os arquivos de configuração.">
                             <i class="fa-solid fa-terminal"></i>
@@ -86,5 +87,27 @@
 {% endblock %}
 
 {% block javascripts %}
+    <script>
+        $(document).on('show.bs.modal', '#modalApacheStatus', function (event) {
+            const button = event.relatedTarget;
 
+            let route = button.getAttribute('data-route');
+            let target = button.getAttribute('data-target');
+
+            $.get(route, function (data) {
+                $(target).html(data ?? '');
+            });
+        });
+
+        $(document).on('show.bs.modal', '#modalCreate', function (event) {
+            const button = event.relatedTarget;
+
+            let route = button.getAttribute('data-route');
+            let target = button.getAttribute('data-target');
+
+            $.get(route, function (data) {
+                $(target).html(data ?? '');
+            });
+        });
+    </script>
 {% endblock %}

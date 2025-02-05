@@ -15,8 +15,10 @@ final class SiteService
 
     private PaginatorInterface $paginator;
 
-    public function __construct(EntityManagerInterface $entityManager, PaginatorInterface $paginator)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator
+    ) {
         $this->entityManager = $entityManager;
         $this->paginator = $paginator;
     }
@@ -26,13 +28,24 @@ final class SiteService
         return $this->entityManager->getRepository(Site::class)->find($id);
     }
 
+    public function getOrException(int $id): Site
+    {
+        $site = $this->get($id);
+
+        if ($site === null) {
+            throw new \InvalidArgumentException('Site não existe!');
+        }
+
+        return $site;
+    }
+
     public function getAll(int $page = 1): PaginationInterface
     {
         $query = $this->entityManager->getRepository(Site::class)
             ->createQueryBuilder('p')
             ->orderBy('p.id', 'DESC')
             ->getQuery();
-        
+
         return $this->paginator->paginate($query, $page, 10);
     }
 

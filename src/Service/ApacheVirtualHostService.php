@@ -11,7 +11,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Twig\Environment;
 
-final class ApacheVirtualHostFileService
+final class ApacheVirtualHostService
 {
     protected Filesystem $filesystem;
 
@@ -21,12 +21,18 @@ final class ApacheVirtualHostFileService
 
     protected string $apacheVirtualHostPath;
 
-    public function __construct(Environment $twig, ParameterBagInterface $parameterBag)
-    {
+    private SiteService $siteService;
+
+    public function __construct(
+        Environment $twig,
+        ParameterBagInterface $parameterBag,
+        SiteService $siteService
+    ) {
         $this->filesystem = new Filesystem();
         $this->twig = $twig;
         $this->parameterBag = $parameterBag;
         $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
+        $this->siteService = $siteService;
     }
 
     public function get(Site $site): string
@@ -65,8 +71,18 @@ final class ApacheVirtualHostFileService
         }
     }
 
-    public function update(Site $site, string $content): void
+    public function update(int $id, string $content): void
     {
+        $site = $this->siteService->get($id);
+
+        if ($site === null) {
+            throw new \InvalidArgumentException('Site não existe!');
+        }
+
+        if (empty($content)) {
+            throw new \InvalidArgumentException('O conteúdo do VirtualHost não pode ser vazio!');
+        }
+
         $this->delete($site);
 
         $process = new Process([
@@ -123,5 +139,83 @@ final class ApacheVirtualHostFileService
             'errorLog' => $site->getErrorLog(),
             'certPath' => $certPath,
         ]);
+    }
+
+    public function getAccessLog(Site $site, int $numberLines = 20): string
+    {
+        $path = '/var/log/apache2/' . $site->getAccessLog();
+        $lines = '-' . $numberLines;
+
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
+
+        $process = new Process(["sudo", "tail", $lines, $path]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function getErrorLog(Site $site, int $numberLines = 20): string
+    {
+        $path = '/var/log/apache2/' . $site->getErrorLog();
+        $lines = '-' . $numberLines;
+
+        if (!$this->filesystem->exists($path)) {
+            return '';
+        }
+
+        $process = new Process(["sudo", "tail", $lines, $path]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function getFpmPool(Site $site): string
+    {
+        $fileName = $site->getDomainConf();
+
+        $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
+
+        if (!$this->filesystem->exists($workingDirectory . $fileName)) {
+            return '';
+        }
+
+        $process = new Process(['sudo', 'cat', $fileName]);
+        $process->setWorkingDirectory($workingDirectory);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function getUserIni(Site $site): string
+    {
+        $fileName = '.user.ini';
+
+        if (!$this->filesystem->exists($site->getDocumentRoot() . DIRECTORY_SEPARATOR . $fileName)) {
+            return '';
+        }
+
+        $process = new Process(['sudo', 'cat', $fileName]);
+        $process->setWorkingDirectory($site->getDocumentRoot());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 }
