@@ -6,37 +6,46 @@ namespace App\Service;
 
 use App\Entity\Database;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 final class DatabaseMySqlService
 {
     private ParameterBagInterface $parameterBag;
 
-    public function __construct(ParameterBagInterface $parameterBag)
-    {
+    private BashScriptService $bashScriptService;
+
+    private string $username;
+
+    private string $password;
+
+    public function __construct(
+        ParameterBagInterface $parameterBag,
+        BashScriptService $bashScriptService
+    ) {
         $this->parameterBag = $parameterBag;
+        $this->bashScriptService = $bashScriptService;
+
+        $this->setMySQLCredentials();
     }
 
     public function createDatabase(Database $database): void
     {
         $command = sprintf('CREATE DATABASE %s;', $database->getName());
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
     public function dropDatabase(Database $database): void
     {
         $command = sprintf('DROP DATABASE %s;', $database->getName());
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
     public function userExists(Database $database): bool
     {
         $command = sprintf("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user='%s');", $database->getUsername());
 
-        $return = (int) $this->runCommandWithReturn($command);
+        $return = (int) $this->runMySQLCommandWithReturn($command);
 
         return $return === 1;
     }
@@ -50,7 +59,7 @@ final class DatabaseMySqlService
             $database->getPassword()
         );
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
     public function dropUser(Database $database): void
@@ -61,7 +70,7 @@ final class DatabaseMySqlService
             $database->getPermission(),
         );
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
     public function grantAllPrivileges(Database $database): void
@@ -73,53 +82,45 @@ final class DatabaseMySqlService
             $database->getPermission()
         );
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
     public function flushPrivileges(): void
     {
         $command = 'FLUSH PRIVILEGES;';
 
-        $this->runCommand($command);
+        $this->runMySQLCommand($command);
     }
 
-    private function runCommand(string $command): void
+    private function runMySQLCommand(string $commandLine): void
     {
-        $mysql = $this->parameterBag->get('mysql');
-
-        $cmdCommand = sprintf(
+        $command = sprintf(
             'sudo mysql -u %s -p%s -e "%s"',
-            $mysql['user'],
-            $mysql['password'],
-            $command
+            $this->username,
+            $this->password,
+            escapeshellarg($commandLine)
         );
 
-        $process = Process::fromShellCommandline($cmdCommand);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandLineWithoutReturn($command);
     }
 
-    private function runCommandWithReturn(string $command): string
+    private function runMySQLCommandWithReturn(string $commandLine): string
+    {
+        $command = sprintf(
+            'sudo mysql -u %s -p%s -se "%s"',
+            $this->username,
+            $this->password,
+            escapeshellarg($commandLine)
+        );
+
+        return $this->bashScriptService->runCommandLineWithReturn($command);
+    }
+
+    private function setMySQLCredentials()
     {
         $mysql = $this->parameterBag->get('mysql');
 
-        $cmdCommand = sprintf(
-            'sudo mysql -u %s -p%s -se "%s"',
-            $mysql['user'],
-            $mysql['password'],
-            $command
-        );
-
-        $process = Process::fromShellCommandline($cmdCommand);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        $this->username = $mysql['user'] ?? '';
+        $this->password = $mysql['password'] ?? '';
     }
 }

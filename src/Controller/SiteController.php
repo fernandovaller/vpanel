@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Service\ApacheService;
-use App\Service\ApacheVirtualHostService;
 use App\Service\PhpVersionService;
 use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

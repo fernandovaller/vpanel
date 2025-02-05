@@ -56,7 +56,20 @@ final class BashScriptService
         }
     }
 
-    public function runCommandWithContent(): void
+    public function runCommandLineWithReturn(string $command, ?string $workingDirectory = null): string
     {
+        $process = Process::fromShellCommandline($command);
+
+        if ($workingDirectory !== null) {
+            $process->setWorkingDirectory($workingDirectory);
+        }
+
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 }

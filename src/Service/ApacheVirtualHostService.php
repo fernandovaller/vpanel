@@ -7,8 +7,6 @@ namespace App\Service;
 use App\Entity\Site;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 use Twig\Environment;
 
 final class ApacheVirtualHostService
@@ -23,16 +21,20 @@ final class ApacheVirtualHostService
 
     private SiteService $siteService;
 
+    private BashScriptService $bashScriptService;
+
     public function __construct(
         Environment $twig,
         ParameterBagInterface $parameterBag,
-        SiteService $siteService
+        SiteService $siteService,
+        BashScriptService $bashScriptService
     ) {
         $this->filesystem = new Filesystem();
         $this->twig = $twig;
         $this->parameterBag = $parameterBag;
         $this->apacheVirtualHostPath = $this->parameterBag->get('apacheVirtualHostPath');
         $this->siteService = $siteService;
+        $this->bashScriptService = $bashScriptService;
     }
 
     public function get(Site $site): string
@@ -41,62 +43,38 @@ final class ApacheVirtualHostService
             return '';
         }
 
-        $process = new Process(['sudo', 'cat', $site->getDomainConf()]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $command = ['sudo', 'cat', $site->getDomainConf()];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command, $this->apacheVirtualHostPath);
     }
 
     public function create(Site $site): void
     {
-        $content = $this->generateContentVirtualHost($site);
-        $content .= $this->generateContentVirtualHostWithSsl($site);
+        $contentVirtualHost = $this->generateContentVirtualHost($site);
+        $contentVirtualHostWithSsl = $this->generateContentVirtualHostWithSsl($site);
 
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " > " . escapeshellarg($site->getDomainConf()),
-        ]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $content = $contentVirtualHost . $contentVirtualHostWithSsl;
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($content), escapeshellarg($site->getDomainConf()));
+
+        $command = ["sudo", "bash", "-c", $commandContent];
+
+        $this->bashScriptService->runCommandWithoutReturn($command, $this->apacheVirtualHostPath);
     }
 
     public function update(int $id, string $content): void
     {
-        $site = $this->siteService->get($id);
-
-        if ($site === null) {
-            throw new \InvalidArgumentException('Site não existe!');
-        }
+        $site = $this->siteService->getOrException($id);
 
         if (empty($content)) {
             throw new \InvalidArgumentException('O conteúdo do VirtualHost não pode ser vazio!');
         }
 
-        $this->delete($site);
+        $commandContent = sprintf('echo %s > %s', escapeshellarg($content), escapeshellarg($site->getDomainConf()));
 
-        $process = new Process([
-            "sudo",
-            "bash",
-            "-c",
-            "echo " . escapeshellarg($content) . " > " . escapeshellarg($site->getDomainConf()),
-        ]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $command = ["sudo", "bash", "-c", $commandContent];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $this->apacheVirtualHostPath);
     }
 
     public function delete(Site $site): void
@@ -105,13 +83,9 @@ final class ApacheVirtualHostService
             return;
         }
 
-        $process = new Process(['sudo', 'rm', '-f', $site->getDomainConf()]);
-        $process->setWorkingDirectory($this->apacheVirtualHostPath);
-        $process->run();
+        $command = ['sudo', 'rm', '-f', $site->getDomainConf()];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $this->bashScriptService->runCommandWithoutReturn($command, $this->apacheVirtualHostPath);
     }
 
     private function generateContentVirtualHost(Site $site): string
@@ -143,40 +117,30 @@ final class ApacheVirtualHostService
 
     public function getAccessLog(Site $site, int $numberLines = 20): string
     {
-        $path = '/var/log/apache2/' . $site->getAccessLog();
+        $fileName = '/var/log/apache2/' . $site->getAccessLog();
         $lines = '-' . $numberLines;
 
-        if (!$this->filesystem->exists($path)) {
+        if (!$this->filesystem->exists($fileName)) {
             return '';
         }
 
-        $process = new Process(["sudo", "tail", $lines, $path]);
-        $process->run();
+        $command = ['sudo', 'tail', '-f', $lines, $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command);
     }
 
     public function getErrorLog(Site $site, int $numberLines = 20): string
     {
-        $path = '/var/log/apache2/' . $site->getErrorLog();
+        $fileName = '/var/log/apache2/' . $site->getErrorLog();
         $lines = '-' . $numberLines;
 
-        if (!$this->filesystem->exists($path)) {
+        if (!$this->filesystem->exists($fileName)) {
             return '';
         }
 
-        $process = new Process(["sudo", "tail", $lines, $path]);
-        $process->run();
+        $command = ['sudo', 'tail', '-f', $lines, $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command);
     }
 
     public function getFpmPool(Site $site): string
@@ -189,15 +153,9 @@ final class ApacheVirtualHostService
             return '';
         }
 
-        $process = new Process(['sudo', 'cat', $fileName]);
-        $process->setWorkingDirectory($workingDirectory);
-        $process->run();
+        $command = ['sudo', 'cat', $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command, $workingDirectory);
     }
 
     public function getUserIni(Site $site): string
@@ -208,14 +166,8 @@ final class ApacheVirtualHostService
             return '';
         }
 
-        $process = new Process(['sudo', 'cat', $fileName]);
-        $process->setWorkingDirectory($site->getDocumentRoot());
-        $process->run();
+        $command = ['sudo', 'cat', $fileName];
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $process->getOutput();
+        return $this->bashScriptService->runCommandWithReturn($command, $site->getDocumentRoot());
     }
 }
