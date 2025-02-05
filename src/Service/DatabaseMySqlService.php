@@ -5,11 +5,19 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Database;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 final class DatabaseMySqlService
 {
+    private ParameterBagInterface $parameterBag;
+
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
+        $this->parameterBag = $parameterBag;
+    }
+
     public function createDatabase(Database $database): void
     {
         $command = sprintf('CREATE DATABASE %s;', $database->getName());
@@ -22,6 +30,15 @@ final class DatabaseMySqlService
         $command = sprintf('DROP DATABASE %s;', $database->getName());
 
         $this->runCommand($command);
+    }
+
+    public function userExists(Database $database): bool
+    {
+        $command = sprintf("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user='%s');", $database->getUsername());
+
+        $return = (int) $this->runCommandWithReturn($command);
+
+        return $return === 1;
     }
 
     public function createUser(Database $database): void
@@ -68,7 +85,14 @@ final class DatabaseMySqlService
 
     private function runCommand(string $command): void
     {
-        $cmdCommand = sprintf('sudo mysql -u root -proot2017 -e "%s"', $command);
+        $mysql = $this->parameterBag->get('mysql');
+
+        $cmdCommand = sprintf(
+            'sudo mysql -u %s -p%s -e "%s"',
+            $mysql['user'],
+            $mysql['password'],
+            $command
+        );
 
         $process = Process::fromShellCommandline($cmdCommand);
         $process->run();
@@ -80,7 +104,14 @@ final class DatabaseMySqlService
 
     private function runCommandWithReturn(string $command): string
     {
-        $cmdCommand = sprintf('sudo mysql -u root -proot2017 -se "%s"', $command);
+        $mysql = $this->parameterBag->get('mysql');
+
+        $cmdCommand = sprintf(
+            'sudo mysql -u %s -p%s -se "%s"',
+            $mysql['user'],
+            $mysql['password'],
+            $command
+        );
 
         $process = Process::fromShellCommandline($cmdCommand);
         $process->run();
@@ -90,14 +121,5 @@ final class DatabaseMySqlService
         }
 
         return $process->getOutput();
-    }
-
-    public function userExists(Database $database): bool
-    {
-        $command = sprintf("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user='%s');", $database->getUsername());
-
-        $return = (int) $this->runCommandWithReturn($command);
-
-        return $return === 1;
     }
 }

@@ -1,6 +1,7 @@
 # vPanel
 
-vPanel é um simples painel para administrar sites em localhost utilizando o servidor Apache. Ele fornece uma interface web amigável para facilitar o gerenciamento de sites locais.
+vPanel é um simples painel para administrar sites em localhost utilizando o servidor Apache. Ele
+fornece uma interface web amigável para facilitar o gerenciamento de sites locais.
 
 ## 🚀 Funcionalidades
 
@@ -38,9 +39,10 @@ cp .env .env.local
 Edite o `.env.local` e configure a variável `DATABASE_URL` para usar SQLite:
 
 ```env
-DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
 MKCERT_PATH=/etc/ssl/mkcert/
 APACHE_VIRTUAL_HOST_PATH=/etc/apache2/sites-available/
+MYSQL_USER=
+MYSQL_PASSWORD=
 ```
 
 Crie a estrutura do banco de dados:
@@ -64,7 +66,7 @@ Acesse no navegador:
 http://127.0.0.1:8000
 ```
 
-## 🛠  Permissões: Evitando Pedir Senha
+## 🛠 Permissões: Evitando Pedir Senha
 
 `www-data` é o usuário padrão do Apache/PHP no Linux. Se estiver usando outro usuário, substitua.
 

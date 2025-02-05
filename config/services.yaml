@@ -6,6 +6,10 @@
 parameters:
     mkcertPath: '%env(MKCERT_PATH)%'
     apacheVirtualHostPath: '%env(APACHE_VIRTUAL_HOST_PATH)%'
+    
+    mysql:
+        user: '%env(MYSQL_USER)%'
+        password: '%env(MYSQL_PASSWORD)%'
 
 services:
     # default configuration for services in *this* file
