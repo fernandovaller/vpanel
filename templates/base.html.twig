@@ -4,11 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>vPanel {% block title %}{% endblock %}</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/image/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/image/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon-16x16.png">
-    <link rel="manifest" href="/image/site.webmanifest">
-
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('/image/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('/image/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('/image/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('/image/site.webmanifest') }}">
 
     <link href="{{ asset('css/bootstrap-lumen.css') }}" rel="stylesheet">
     <link rel="stylesheet"
@@ -17,6 +16,10 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet"
           href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.15.10/sweetalert2.css"
+          integrity="sha512-aT8kGTpksA05BegcQmkwCB142bJ9VHx8RAdt4FsCxivASGHCKrI3o1KX5oftKK8J8oZ5v450UtJPp66EJhEuHA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
     {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
     {% block stylesheets %}
@@ -40,43 +43,13 @@
 
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-primary mb-4" data-bs-theme="dark">
-    <div class="container">
-        <a class="navbar-brand" href="{{ path('app_site_index') }}">
-            <img src="/image/favicon-32x32.png" alt="Logo" width="24" height="24"
-                 class="d-inline-block align-text-top me-1">
-            vPanel
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page"
-                       href="{{ path('app_site_index') }}">Sites</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page"
-                       href="{{ path('app_php_version_index') }}">PHP</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+{% include 'navbar.html.twig' %}
+
 <div class="container">
     {% block body %}{% endblock %}
 </div>
 
-<footer class="footer mt-auto py-5">
-    <div class="container">
-        <div class="text-body-tertiary text-center small">
-            <p>Design and Developed by fernandovaller</p>
-        </div>
-    </div>
-</footer>
+{% include 'footer.html.twig' %}
 
 <script src="//cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -85,8 +58,12 @@
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/apacheconf.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/apache.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/accesslog.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.15.10/sweetalert2.min.js"
+        integrity="sha512-M60HsJC4M4A8pgBOj7oC/lvJXuOc9CraWXdD4PF+KNmKl8/Mnz6AH9FANgi4SJM6D9rqPvgQt4KRFR1rPN+EUw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ asset('js/geral.js') }}"></script>
 {% block javascripts %}
     {{ encore_entry_script_tags('app') }}
 {% endblock %}

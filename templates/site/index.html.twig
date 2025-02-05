@@ -4,15 +4,15 @@
 
 {% block body %}
 
-    {% include 'flashMessage.html.twig' %}
+    {% include 'flash.html.twig' %}
 
     <div class="row mb-4">
         <div class="col-6">
-            <h2>Sites</h2>
+            <h2><i class="fa-solid fa-link me-1"></i> Sites</h2>
         </div>
         <div class="col-6 text-end">
             <div class="btn-group">
-                <a href="{{ path('app_site_index') }}" class="btn btn-primary"
+                <a href="javascript:void(0);" class="btn btn-primary"
                    data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <i class="fa-regular fa-file me-2"></i>
                     New site
@@ -47,8 +47,12 @@
                     <td class="small">{{ site.documentRoot }}</td>
                     <td class="small">{{ site.defaultDocument }}</td>
                     <td>
-                        <a href="{{ path('app_apache_create_site', {id: site.id}) }}"
-                           title="Criar ou atualizar configurações">
+                        <a href="javascript:void(0);"
+                           class="btnConfirmar"
+                           title="Criar ou atualizar configurações"
+                           data-route="{{ path('app_apache_create_site', {id: site.id}) }}"
+                           data-title="Gerar Arquivos?"
+                           data-msg="Esse processo irá gerar ou atualizar os arquivos de configuração.">
                             <i class="fa-solid fa-terminal"></i>
                         </a>
                     </td>
@@ -101,22 +105,5 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        $(document).on('click', '.editModal', function (event) {
-            event.preventDefault();
 
-            let route = $(this).data('route');
-            let target = $(this).data('target');
-            let modal = $(`${target}`);
-
-            $.get(route, function (data) {
-                if (!data) {
-                    return;
-                }
-
-                modal.html(data);
-            });
-
-        });
-    </script>
 {% endblock %}

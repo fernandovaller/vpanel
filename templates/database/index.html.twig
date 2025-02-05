@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Databases{% endblock %}
+
+{% block body %}
+
+    {% include 'flash.html.twig' %}
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <h2><i class="fa-solid fa-database me-1"></i> Databases</h2>
+        </div>
+        <div class="col-6 text-end">
+            <div class="btn-group">
+                <a href="javascript:void(0);" class="btn btn-primary"
+                   data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fa-regular fa-file me-2"></i>
+                    New database
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-center table-hover mb-4">
+            <thead class="">
+            <tr class="table-primary">
+                <th>NAME</th>
+                <th>USERNAME</th>
+                <th>PASSWORD</th>
+                <th>PERMISSION</th>
+                <th>NOTE</th>
+
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for database in pagination.items %}
+                <tr>
+                    <td>{{ database.name }}</td>
+                    <td>{{ database.username }}</td>
+                    <td>{{ database.password }}</td>
+                    <td>{{ database.permission }}</td>
+                    <td>{{ database.note }}</td>
+
+                    <td>
+                        <a href="javascript:void(0);"
+                           class="btnConfirmar"
+                           title="Criar ou atualizar Database?"
+                           data-route="{{ path('app_database_generate', {id: database.id}) }}"
+                           data-title="Gerar Database?"
+                           data-msg="Esse processo irá gerar o banco de dados e criar o usuário.">
+                            <i class="fa-solid fa-terminal"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#editModal" data-bs-toggle="modal"
+                           data-route="{{ path('app_database_edit', {id: database.id}) }}"
+                           data-target="#editModalBody" class="editModal">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+
+    {% include 'database/create.html.twig' %}
+
+    {% include 'database/edit.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}

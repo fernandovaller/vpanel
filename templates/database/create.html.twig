@@ -1,0 +1,56 @@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Database Create</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form action="{{ path('app_database_create') }}" method="POST">
+
+                    <div class="form-group mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="text" class="form-control" id="password" name="password">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="permission" class="form-label">Permission</label>
+                        <select class="form-control" id="permission" name="permission">
+                            <option value="localhost">Localhost</option>
+                            <option value="*">Everyone</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="note" class="form-label">Note</label>
+                        <textarea class="form-control" rows="5" id="note" name="note"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-regular fa-floppy-disk me-2"></i>
+                            Save
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
