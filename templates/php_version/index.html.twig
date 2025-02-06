@@ -12,7 +12,7 @@
         </div>
         <div class="col-6 text-end">
             <div class="btn-group">
-                <a href="{{ path('app_php_version_update') }}" class="btn btn-primary">
+                <a href="{{ path('app_phpversion_update') }}" class="btn btn-primary">
                     <i class="fa-solid fa-arrows-rotate me-2"></i>
                     Update
                 </a>
@@ -26,6 +26,7 @@
             <tr class="table-primary">
                 <th>PHP VERSION</th>
                 <th>PATH</th>
+                <th width="10">&nbsp;</th>
             </tr>
             </thead>
 
@@ -34,6 +35,14 @@
                 <tr>
                     <td>{{ entity.version }}</td>
                     <td>{{ entity.path }}</td>
+
+                    <td class="text-end">
+                        <a href="#editModal" data-bs-toggle="modal"
+                           data-route="{{ path('app_phpversion_edit', {id: entity.id}) }}"
+                           data-target="#editModal .modal-body">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -43,6 +52,9 @@
     <div class="d-flex justify-content-end">
         {{ knp_pagination_render(pagination) }}
     </div>
+
+    {% include 'php_version/modal.html.twig' %}
+    
 {% endblock %}
 
 {% block javascripts %}

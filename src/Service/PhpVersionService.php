@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ConfigFileDto;
 use App\Entity\PhpVersion;
+use App\Entity\Site;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use PHPUnit\TextUI\XmlConfiguration\Php;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -17,15 +20,32 @@ final class PhpVersionService
 
     private PaginatorInterface $paginator;
 
-    public function __construct(EntityManagerInterface $entityManager, PaginatorInterface $paginator)
-    {
+    private BashScriptService $bashScriptService;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
+        BashScriptService $bashScriptService
+    ) {
         $this->entityManager = $entityManager;
         $this->paginator = $paginator;
+        $this->bashScriptService = $bashScriptService;
     }
 
     public function get(int $id): ?PhpVersion
     {
         return $this->entityManager->getRepository(PhpVersion::class)->find($id);
+    }
+
+    public function getOrException(int $id): PhpVersion
+    {
+        $phpVersion = $this->get($id);
+
+        if ($phpVersion === null) {
+            throw new \InvalidArgumentException('PhpVersion não existe!');
+        }
+
+        return $phpVersion;
     }
 
     public function getList(): array
@@ -90,5 +110,18 @@ final class PhpVersionService
         return array_filter(
             explode(PHP_EOL, $process->getOutput())
         );
+    }
+
+    public function getIni(PhpVersion $phpVersion): ConfigFileDto
+    {
+        $fileName = sprintf('/etc/php/%s/fpm/php.ini', $phpVersion->getVersion());
+
+        $command = ['cat', $fileName];
+
+        $return = $this->bashScriptService->runCommandWithReturn($command);
+
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return);
     }
 }

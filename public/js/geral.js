@@ -1,18 +1,12 @@
-$(document).on('click', '.editModal', function (event) {
-    event.preventDefault();
+$(document).on('show.bs.modal', '#editModal', function (event) {
+    const button = event.relatedTarget;
 
-    let route = $(this).data('route');
-    let target = $(this).data('target');
-    let modal = $(`${target}`);
+    let route = button.getAttribute('data-route');
+    let target = button.getAttribute('data-target');
 
     $.get(route, function (data) {
-        if (!data) {
-            return;
-        }
-
-        modal.html(data);
+        $(target).html(data ?? '');
     });
-
 });
 
 $(document).on('click', '.btnExcluir', function (event) {

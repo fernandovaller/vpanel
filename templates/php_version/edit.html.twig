@@ -1,0 +1,13 @@
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab1" data-bs-toggle="tab"
+                data-bs-target="#tab01" type="button" role="tab" aria-selected="true">
+            PHP INI
+        </button>
+    </li>
+</ul>
+<div class="tab-content border border-top-0" id="myTabContent">
+    <div class="tab-pane p-3 fade show active" id="tab01" role="tabpanel" tabindex="1">
+        {% include 'php_version/phpIni.html.twig' %}
+    </div>
+</div>
