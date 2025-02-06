@@ -11,13 +11,15 @@
             <h2><i class="fa-solid fa-database me-1"></i> Databases</h2>
         </div>
         <div class="col-6 text-end">
-            <div class="btn-group">
-                <a href="javascript:void(0);" class="btn btn-primary"
-                   data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <i class="fa-regular fa-file me-2"></i>
-                    New database
-                </a>
-            </div>
+
+            <button class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCreate"
+                    data-route="{{ path('app_database_create') }}"
+                    data-target="#modalCreate .modal-body">
+                <i class="fa-regular fa-file me-2"></i>
+                {{ 'btn.new' | trans }}
+            </button>
         </div>
     </div>
 
@@ -31,7 +33,7 @@
                 <th>PERMISSION</th>
                 <th>NOTE</th>
 
-                <th>&nbsp;</th>
+                <th width="200">&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
             </thead>
@@ -45,17 +47,16 @@
                     <td>{{ database.permission }}</td>
                     <td>{{ database.note }}</td>
 
-                    <td>
+                    <td class="text-center">
                         <a href="javascript:void(0);"
-                           class="btnConfirmar"
-                           title="Criar ou atualizar Database?"
+                           class="btn btn-secondary btn-sm btnConfirm"
                            data-route="{{ path('app_database_generate', {id: database.id}) }}"
-                           data-title="Gerar Database?"
-                           data-msg="Esse processo irá gerar o banco de dados e criar o usuário.">
-                            <i class="fa-solid fa-terminal"></i>
+                           data-title="{{ 'database.create.title' | trans }}"
+                           data-msg="{{ 'database.create.message' | trans }}">
+                            <i class="fa-solid fa-terminal me-1"></i> {{ 'database.btn.create' | trans }}
                         </a>
                     </td>
-                    <td>
+                    <td class="text-end">
                         <a href="#modalEdit" data-bs-toggle="modal"
                            data-route="{{ path('app_database_edit', {id: database.id}) }}"
                            data-target="#editModalBody" class="modalEdit">
@@ -72,9 +73,7 @@
         {{ knp_pagination_render(pagination) }}
     </div>
 
-    {% include 'database/create.html.twig' %}
-
-    {% include 'database/edit.html.twig' %}
+    {% include 'database/modal.html.twig' %}
 
 {% endblock %}
 

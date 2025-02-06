@@ -43,7 +43,7 @@ $(document).on('click', '.btnExcluir', function (event) {
 });
 
 
-$(document).on('click', '.btnConfirmar', function (event) {
+$(document).on('click', '.btnConfirm', function (event) {
     event.preventDefault();
 
     let route = $(this).data('route');

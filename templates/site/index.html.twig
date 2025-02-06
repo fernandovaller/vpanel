@@ -25,7 +25,7 @@
                     data-route="{{ path('app_site_create') }}"
                     data-target="#modalCreate .modal-body">
                 <i class="fa-regular fa-file me-2"></i>
-                New site
+                {{ 'btn.new' | trans }}
             </button>
         </div>
     </div>
@@ -57,7 +57,7 @@
                     <td class="small">{{ site.defaultDocument }}</td>
                     <td class="text-center">
                         <a href="javascript:void(0);"
-                           class="btn btn-secondary btn-sm btnConfirmar"
+                           class="btn btn-secondary btn-sm btnConfirm"
                            title="Criar ou atualizar configurações"
                            data-route="{{ path('app_apache_virtualhost_create', {id: site.id}) }}"
                            data-title="Gerar Arquivos?"

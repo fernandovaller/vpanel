@@ -87,6 +87,8 @@ final class DatabaseService
             throw new \RuntimeException('Database not found');
         }
 
+        $this->removeDatabase($database);
+
         $this->entityManager->remove($database);
         $this->entityManager->flush();
     }
@@ -120,18 +122,14 @@ final class DatabaseService
         $this->databaseMySqlService->flushPrivileges();
     }
 
-    public function removeDatabase(int $id): void
+    private function removeDatabase(Database $database): void
     {
-        $database = $this->get($id);
-
-        if ($database === null) {
-            throw new \RuntimeException('Database not found');
+        if ($this->databaseMySqlService->userExists($database) === false) {
+            return;
         }
 
-        if ($this->databaseMySqlService->userExists($database)) {
-            $this->databaseMySqlService->dropDatabase($database);
-            $this->databaseMySqlService->dropUser($database);
-            $this->databaseMySqlService->flushPrivileges();
-        }
+        $this->databaseMySqlService->dropDatabase($database);
+        $this->databaseMySqlService->dropUser($database);
+        $this->databaseMySqlService->flushPrivileges();
     }
 }

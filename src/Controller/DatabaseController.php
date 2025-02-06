@@ -9,14 +9,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DatabaseController extends AbstractController
 {
     private DatabaseService $databaseService;
 
-    public function __construct(DatabaseService $databaseService)
-    {
+    private TranslatorInterface $translator;
+
+    public function __construct(
+        DatabaseService $databaseService,
+        TranslatorInterface $translator
+    ) {
         $this->databaseService = $databaseService;
+        $this->translator = $translator;
     }
 
     /**
@@ -34,19 +40,30 @@ class DatabaseController extends AbstractController
     }
 
     /**
-     * @Route("/database/create", name="app_database_create", methods={"POST"})
+     * @Route("/database/create", name="app_database_create", methods={"GET"})
      */
-    public function create(Request $request): Response
+    public function create(): Response
+    {
+        try {
+            return $this->render('database/create.html.twig');
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_database_index');
+    }
+
+    /**
+     * @Route("/database/store", name="app_database_store", methods={"POST"})
+     */
+    public function store(Request $request): Response
     {
         try {
             $requestData = $request->request->all();
 
             $this->databaseService->create($requestData);
 
-            $this->addFlash(
-                'success',
-                'Database criada!'
-            );
+            $this->addFlash('success', $this->translator->trans('database.form.create'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -62,7 +79,7 @@ class DatabaseController extends AbstractController
         try {
             $database = $this->databaseService->get($id);
 
-            return $this->render('database/editForm.html.twig', [
+            return $this->render('database/edit.html.twig', [
                 'database' => $database,
             ]);
         } catch (\Exception $exception) {
@@ -82,10 +99,7 @@ class DatabaseController extends AbstractController
 
             $this->databaseService->update($requestData, $id);
 
-            $this->addFlash(
-                'success',
-                'Database atualizada!'
-            );
+            $this->addFlash('success', $this->translator->trans('database.form.edit'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -99,13 +113,9 @@ class DatabaseController extends AbstractController
     public function delete(int $id): Response
     {
         try {
-            $this->databaseService->removeDatabase($id);
             $this->databaseService->delete($id);
 
-            $this->addFlash(
-                'success',
-                'Database removida!'
-            );
+            $this->addFlash('success', $this->translator->trans('database.form.delete'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -121,10 +131,7 @@ class DatabaseController extends AbstractController
         try {
             $this->databaseService->generateDatabase($id);
 
-            $this->addFlash(
-                'success',
-                'Database gerada!'
-            );
+            $this->addFlash('success', $this->translator->trans('database.form.create'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

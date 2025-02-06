@@ -1,3 +1,6 @@
+generateFilesTitle: 'Generate files?'
+generateFilesMessage: 'This process will generate or update the configuration files.'
+fileHasCreated: 'File has been created!'
 fileHasUpdated: 'File has been updated!'
 configurationExample: 'Configuration example'
 
@@ -7,6 +10,7 @@ phpversion.stop: 'Service has been stopped!'
 phpversion.start: 'Service has been started!'
 phpversion.restart: 'Service has been restarted!'
 
+btn.new: 'New'
 btn.start: 'Start'
 btn.stop: 'Stop'
 btn.restart: 'Restart'
@@ -14,3 +18,13 @@ btn.save: 'Save'
 btn.close: 'Close'
 btn.delete: 'Delete'
 btn.generateFiles: 'Generate Files'
+
+modal.title.create: 'Create'
+modal.title.edit: 'Edit'
+
+database.form.create: 'Database has been created!'
+database.form.edit: 'Database has been updated!'
+database.form.delete: 'Database has been deleted!'
+database.btn.create: 'Create database'
+database.create.title: 'Create the database?'
+database.create.message: 'This process will create or update the database.'
