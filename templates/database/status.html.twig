@@ -31,17 +31,17 @@
         </p>
 
         <div class="">
-            <a href="{{ path('app_apache_start') }}"
+            <a href="{{ path('app_database_change_status', {action: 'start'}) }}"
                class="btn btn-secondary me-3">
                 <i class="fa-solid fa-play me-2"></i> {{ 'btn.start' | trans }}
             </a>
 
-            <a href="{{ path('app_apache_restart') }}"
+            <a href="{{ path('app_database_change_status', {action: 'restart'}) }}"
                class="btn btn-secondary me-3">
                 <i class="fa-solid fa-rotate me-2"></i> {{ 'btn.restart' | trans }}
             </a>
 
-            <a href="{{ path('app_apache_stop') }}"
+            <a href="{{ path('app_database_change_status', {action: 'stop'}) }}"
                class="btn btn-secondary me-3">
                 <i class="fa-solid fa-stop me-2"></i> {{ 'btn.stop' | trans }}
             </a>
@@ -70,6 +70,11 @@
         </form>
     </div>
 
+    <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel03"
+         role="tabpanel"
+         aria-labelledby="apacheTab03" tabindex="0">
+        logs
+    </div>
 
 </div>
 

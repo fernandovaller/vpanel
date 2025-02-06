@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ConfigFileDto;
 use App\Entity\Database;
+use App\Enum\ServiceActionEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class DatabaseService
 {
@@ -21,6 +24,7 @@ final class DatabaseService
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
         DatabaseMySqlService $databaseMySqlService
+
     ) {
         $this->entityManager = $entityManager;
         $this->paginator = $paginator;
@@ -116,6 +120,10 @@ final class DatabaseService
             throw new \RuntimeException('Database not found');
         }
 
+        if ($this->isRunning() === false) {
+            throw new \RuntimeException('Database not active');
+        }
+
         $this->databaseMySqlService->createDatabase($database);
         $this->databaseMySqlService->createUser($database);
         $this->databaseMySqlService->grantAllPrivileges($database);
@@ -124,6 +132,10 @@ final class DatabaseService
 
     private function removeDatabase(Database $database): void
     {
+        if ($this->isRunning() === false) {
+            throw new \RuntimeException('Database not active');
+        }
+
         if ($this->databaseMySqlService->userExists($database) === false) {
             return;
         }
@@ -131,5 +143,26 @@ final class DatabaseService
         $this->databaseMySqlService->dropDatabase($database);
         $this->databaseMySqlService->dropUser($database);
         $this->databaseMySqlService->flushPrivileges();
+    }
+
+    public function isRunning(): bool
+    {
+        return $this->databaseMySqlService->isRunning();
+    }
+
+    public function getMySQLConfig(): ConfigFileDto
+    {
+        $fileName = '/etc/mysql/my.cnf';
+
+        return $this->databaseMySqlService->getContentFile($fileName);
+    }
+
+    public function changeStatus(string $action): void
+    {
+        if (ServiceActionEnum::isValidValue($action) === false) {
+            throw new \InvalidArgumentException('Invalid action');
+        }
+
+        $this->databaseMySqlService->changeStatus($action);
     }
 }

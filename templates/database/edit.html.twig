@@ -39,9 +39,9 @@
     <div class="d-flex px-0">
         <a href="javascript:void(0)"
            data-route="{{ path('app_database_delete', {id: database.id}) }}"
-           data-title="Remover Database?"
-           data-msg="Esse processo irá remover o usuário e base de dados."
-           class="btn btn-outline-danger me-auto btnExcluir">
+           data-title="{{ 'database.delete.title' | trans }}"
+           data-msg="{{ 'database.delete.message' | trans }}"
+           class="btn btn-outline-danger me-auto btnRemove">
             {{ 'btn.delete' | trans }}
         </a>
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ConfigFileDto;
 use App\Entity\Database;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class DatabaseMySqlService
 {
@@ -17,12 +19,15 @@ final class DatabaseMySqlService
 
     private string $password;
 
+    private Filesystem $filesystem;
+
     public function __construct(
         ParameterBagInterface $parameterBag,
         BashScriptService $bashScriptService
     ) {
         $this->parameterBag = $parameterBag;
         $this->bashScriptService = $bashScriptService;
+        $this->filesystem = new Filesystem();
 
         $this->setMySQLCredentials();
     }
@@ -43,7 +48,10 @@ final class DatabaseMySqlService
 
     public function userExists(Database $database): bool
     {
-        $command = sprintf("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user='%s');", $database->getUsername());
+        $command = sprintf(
+            'SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user=%s);',
+            escapeshellarg($database->getUsername())
+        );
 
         $return = (int) $this->runMySQLCommandWithReturn($command);
 
@@ -110,7 +118,7 @@ final class DatabaseMySqlService
             'sudo mysql -u %s -p%s -se "%s"',
             $this->username,
             $this->password,
-            escapeshellarg($commandLine)
+            $commandLine
         );
 
         return $this->bashScriptService->runCommandLineWithReturn($command);
@@ -122,5 +130,39 @@ final class DatabaseMySqlService
 
         $this->username = $mysql['user'] ?? '';
         $this->password = $mysql['password'] ?? '';
+    }
+
+    public function isRunning(): bool
+    {
+        $command = ['systemctl', 'is-active', 'mysql'];
+
+        $output = $this->bashScriptService->runCommandWithReturn($command, null, false);
+
+        $status = preg_replace("/[^a-zA-Z]+/", '', $output);
+
+        return $status === 'active';
+    }
+
+    public function getContentFile(string $fileName): ConfigFileDto
+    {
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'cat', $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
+        }
+
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
+    }
+
+    public function changeStatus(string $action): void
+    {
+        if ($action == 'restart' && $this->isRunning() === false) {
+            return;
+        }
+
+        $command = ['sudo', 'service', 'mysql', $action];
+
+        $this->bashScriptService->runCommandWithoutReturn($command);
     }
 }

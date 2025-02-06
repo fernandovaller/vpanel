@@ -36,7 +36,25 @@ class DatabaseController extends AbstractController
 
         return $this->render('database/index.html.twig', [
             'pagination' => $pagination,
+            'mysqlStatus' => $this->databaseService->isRunning(),
         ]);
+    }
+
+    /**
+     * @Route("/database/info", name="app_database_info", methods={"GET"})
+     */
+    public function info(): Response
+    {
+        try {
+            return $this->render('database/status.html.twig', [
+                'mysqlStatus' => $this->databaseService->isRunning(),
+                'mysqlConf' => $this->databaseService->getMySQLConfig(),
+            ]);
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_database_index');
     }
 
     /**
@@ -132,6 +150,22 @@ class DatabaseController extends AbstractController
             $this->databaseService->generateDatabase($id);
 
             $this->addFlash('success', $this->translator->trans('database.form.create'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_database_index');
+    }
+
+    /**
+     * @Route("/apache/{action}/change-status", name="app_database_change_status", methods={"GET"})
+     */
+    public function changeStatus(string $action): Response
+    {
+        try {
+            $this->databaseService->changeStatus($action);
+
+            $this->addFlash('success', $this->translator->trans('database.change.status'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

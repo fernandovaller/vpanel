@@ -11,6 +11,13 @@
             <h2><i class="fa-solid fa-database me-1"></i> Databases</h2>
         </div>
         <div class="col-6 text-end">
+            <button class="btn btn-outline-{{ mysqlStatus ? 'success' : 'danger' }} me-5"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalStatus"
+                    data-route="{{ path('app_database_info') }}"
+                    data-target="#modalStatus .modal-body">
+                MySQL is {{ mysqlStatus ? 'active' : 'inactive' }}
+            </button>
 
             <button class="btn btn-primary"
                     data-bs-toggle="modal"

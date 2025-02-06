@@ -20,7 +20,18 @@ $(document).on('show.bs.modal', '#modalEdit', function (event) {
     });
 });
 
-$(document).on('click', '.btnExcluir', function (event) {
+$(document).on('show.bs.modal', '#modalStatus', function (event) {
+    const button = event.relatedTarget;
+
+    let route = button.getAttribute('data-route');
+    let target = button.getAttribute('data-target');
+
+    $.get(route, function (data) {
+        $(target).html(data ?? '');
+    });
+});
+
+$(document).on('click', '.btnRemove', function (event) {
     event.preventDefault();
 
     let route = $(this).data('route');
