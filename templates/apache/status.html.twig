@@ -27,7 +27,7 @@
          aria-labelledby="apacheTab01" tabindex="0">
 
         <p class="my-4 h5">
-            Current status: {{ mysqlStatus ? 'active' : 'inactive' }}
+            Current status: {{ apacheStatus ? 'active' : 'inactive' }}
         </p>
 
         <div class="">
@@ -51,14 +51,14 @@
     <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel02"
          role="tabpanel"
          aria-labelledby="apacheTab02" tabindex="0">
-        <p class="text-body-tertiary">{{ mysqlConf.name }}</p>
+        <p class="text-body-tertiary">{{ apacheConf.name }}</p>
         <form id="site-create-form"
               action="{{ path('app_apache_update_conf') }}"
               method="POST">
 
             <div class="form-group mb-4">
                 <textarea cols="30" rows="20" class="form-control block-code" name="content"
-                          spellcheck="false">{{ mysqlConf.content }}</textarea>
+                          spellcheck="false">{{ apacheConf.content }}</textarea>
             </div>
 
             <div class="text-end">
