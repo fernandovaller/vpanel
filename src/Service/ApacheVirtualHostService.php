@@ -124,7 +124,7 @@ final class ApacheVirtualHostService
             return '';
         }
 
-        $command = ['sudo', 'tail', '-f', $lines, $fileName];
+        $command = ['sudo', 'tail', $lines, $fileName];
 
         return $this->bashScriptService->runCommandWithReturn($command);
     }
@@ -138,7 +138,7 @@ final class ApacheVirtualHostService
             return '';
         }
 
-        $command = ['sudo', 'tail', '-f', $lines, $fileName];
+        $command = ['sudo', 'tail', $lines, $fileName];
 
         return $this->bashScriptService->runCommandWithReturn($command);
     }
