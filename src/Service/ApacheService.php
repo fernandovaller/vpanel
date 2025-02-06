@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Dto\ApacheVirtualHostDto;
+use App\Dto\ConfigFileDto;
 use App\Entity\Site;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -214,17 +215,18 @@ final class ApacheService
         $this->bashScriptService->runCommandWithoutReturn($command, dirname($siteDirectory, 1));
     }
 
-    public function getApacheConf(): string
+    public function getApacheConf(): ConfigFileDto
     {
         $fileName = '/etc/apache2/apache2.conf';
 
-        if (!$this->filesystem->exists($fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'cat', $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
         }
 
-        $command = ['sudo', 'cat', $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
     public function updateApacheConf(string $content): void
@@ -245,18 +247,19 @@ final class ApacheService
         $this->restart();
     }
 
-    public function getApacheError(int $lines = 20): string
+    public function getApacheError(int $lines = 20): ConfigFileDto
     {
         $fileName = '/var/log/apache2/error.log';
         $numberOfLines = '-' . $lines;
 
-        if (!$this->filesystem->exists($fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'tail', $numberOfLines, $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
         }
 
-        $command = ['sudo', 'tail', $numberOfLines, $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
     public function getInfo(?Site $site): ApacheVirtualHostDto

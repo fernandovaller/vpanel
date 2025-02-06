@@ -51,13 +51,14 @@
     <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel02"
          role="tabpanel"
          aria-labelledby="apacheTab02" tabindex="0">
+        <p class="text-body-tertiary">{{ apacheConf.name }}</p>
         <form id="site-create-form"
               action="{{ path('app_apache_update_conf') }}"
               method="POST">
 
             <div class="form-group mb-4">
                 <textarea cols="30" rows="20" class="form-control block-code" name="apacheConf"
-                          spellcheck="false">{{ apacheConf }}</textarea>
+                          spellcheck="false">{{ apacheConf.content }}</textarea>
             </div>
 
             <div class="text-end">
@@ -72,7 +73,8 @@
     <div class="tab-pane p-3 border border-top-0 fade" id="apacheTabPanel03"
          role="tabpanel"
          aria-labelledby="apacheTab03" tabindex="0">
-        <pre class="mb-0"><code class="language-accesslog">{{ apacheLog }}</code></pre>
+        <p class="text-body-tertiary">{{ apacheLog.name }}</p>
+        <pre class="mb-0"><code class="language-accesslog">{{ apacheLog.content }}</code></pre>
     </div>
 
 </div>
