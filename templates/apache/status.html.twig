@@ -27,24 +27,23 @@
          aria-labelledby="apacheTab01" tabindex="0">
 
         <p class="my-4 h5">
-            Current
-            status: {{ apacheStatus ? 'active' : 'inactive' }}
+            Current status: {{ apacheStatus ? 'active' : 'inactive' }}
         </p>
 
         <div class="">
             <a href="{{ path('app_apache_start') }}"
                class="btn btn-secondary me-3">
-                <i class="fa-solid fa-play me-2"></i> Start
+                <i class="fa-solid fa-play me-2"></i> {{ 'btn.start' | trans }}
             </a>
 
             <a href="{{ path('app_apache_restart') }}"
                class="btn btn-secondary me-3">
-                <i class="fa-solid fa-rotate me-2"></i> Restart
+                <i class="fa-solid fa-rotate me-2"></i> {{ 'btn.restart' | trans }}
             </a>
 
             <a href="{{ path('app_apache_stop') }}"
                class="btn btn-secondary me-3">
-                <i class="fa-solid fa-stop me-2"></i> Stop
+                <i class="fa-solid fa-stop me-2"></i> {{ 'btn.stop' | trans }}
             </a>
         </div>
     </div>

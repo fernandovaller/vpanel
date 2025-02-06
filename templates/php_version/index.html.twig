@@ -43,17 +43,17 @@
                         <div class="btn-group">
                             <a href="{{ path('app_phpversion_start', {id: entity.id}) }}"
                                class="btn btn-secondary btn-sm">
-                                <i class="fa-regular fa-circle-play me-1"></i> Start
+                                <i class="fa-regular fa-circle-play me-1"></i> {{ 'btn.start' | trans }}
                             </a>
 
                             <a href="{{ path('app_phpversion_restart', {id: entity.id}) }}"
                                class="btn btn-secondary btn-sm">
-                                <i class="fa-solid fa-arrows-rotate me-1"></i> Restart
+                                <i class="fa-solid fa-arrows-rotate me-1"></i> {{ 'btn.restart' | trans }}
                             </a>
 
                             <a href="{{ path('app_phpversion_stop', {id: entity.id}) }}"
                                class="btn btn-secondary btn-sm">
-                                <i class="fa-regular fa-circle-stop me-1"></i> Stop
+                                <i class="fa-regular fa-circle-stop me-1"></i> {{ 'btn.stop' | trans }}
                             </a>
                         </div>
                     </td>

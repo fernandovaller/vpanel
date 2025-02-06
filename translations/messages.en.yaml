@@ -1,9 +1,14 @@
-# Forms
 fileHasUpdated: 'File has been updated!'
 
-# Php Version
 phpversion.phpIni: 'Changes to this file will be reflected on all sites using that version of PHP.'
 phpversion.versionsList: 'PHP version list has been updated successfully!'
 phpversion.stop: 'Service has been stopped!'
 phpversion.start: 'Service has been started!'
 phpversion.restart: 'Service has been restarted!'
+
+btn.start: 'Start'
+btn.stop: 'Stop'
+btn.restart: 'Restart'
+btn.save: 'Save'
+btn.close: 'Close'
+btn.delete: 'Delete'

@@ -41,13 +41,17 @@
            data-route="{{ path('app_database_delete', {id: database.id}) }}"
            data-title="Remover Database?"
            data-msg="Esse processo irá remover o usuário e base de dados."
-           class="btn btn-outline-danger me-auto btnExcluir">Delete</a>
+           class="btn btn-outline-danger me-auto btnExcluir">
+            {{ 'btn.delete' | trans }}
+        </a>
 
-        <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary me-3"
+                data-bs-dismiss="modal">{{ 'btn.close' | trans }}
+        </button>
 
         <button type="submit" class="btn btn-success">
             <i class="fa-regular fa-floppy-disk me-2"></i>
-            Save
+            {{ 'btn.save' | trans }}
         </button>
     </div>
 </form>

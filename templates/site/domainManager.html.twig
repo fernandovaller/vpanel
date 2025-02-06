@@ -51,13 +51,16 @@
            class="btn btn-outline-danger me-auto btnExcluir"
            data-route="{{ path('app_apache_virtualhost_delete', {id: site.id}) }}"
            data-title="Remover Site?"
-           data-msg="Esse processo irá remover o sites e seus arquivos de configurações">Delete</a>
+           data-msg="Esse processo irá remover o sites e seus arquivos de configurações">
+            {{ 'btn.delete' | trans }}
+        </a>
 
-        <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary me-3"
+                data-bs-dismiss="modal">{{ 'btn.close' | trans }}
+        </button>
 
         <button type="submit" class="btn btn-success">
-            <i class="fa-regular fa-floppy-disk me-2"></i>
-            Save
+            <i class="fa-regular fa-floppy-disk me-2"></i> {{ 'btn.save' | trans }}
         </button>
     </div>
 </form>
