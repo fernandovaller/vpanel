@@ -92,7 +92,7 @@ final class ApacheService
 
         $output = $this->bashScriptService->runCommandWithReturn($command, null, false);
 
-        $status = preg_replace("/[^a-zA-Z]+/", '', $output);;
+        $status = preg_replace("/[^a-zA-Z]+/", '', $output);
 
         return $status === 'active';
     }

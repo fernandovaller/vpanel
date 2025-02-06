@@ -1,12 +1,12 @@
 <p><strong>File:</strong> {{ configFileDto.name }}</p>
 
-<form id="site-create-form" action="{{ path('app_apache_virtualhost_update', {id: entity.id}) }}"
+<form id="site-create-form" action="{{ path('app_phpversion_update_ini', {id: entity.id}) }}"
       method="POST">
 
     <div class="form-group mb-4">
         <textarea cols="30" rows="20" class="form-control block-code"
-                  id="phpIni"
-                  name="phpIni"
+                  id="content"
+                  name="content"
                   spellcheck="false">{{ configFileDto.content }}</textarea>
     </div>
 

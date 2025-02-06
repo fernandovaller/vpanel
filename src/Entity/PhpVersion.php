@@ -27,6 +27,8 @@ class PhpVersion
      */
     private $path;
 
+    private bool $status = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -54,5 +56,12 @@ class PhpVersion
         $this->path = $path;
 
         return $this;
+    }
+
+    public function isStatus(bool $status): string
+    {
+        return $status
+            ? '<span class="badge rounded-pill bg-success">active</span>'
+            : '<span class="badge rounded-pill bg-secondary">inactive</span>';
     }
 }

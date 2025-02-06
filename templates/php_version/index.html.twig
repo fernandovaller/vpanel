@@ -26,6 +26,8 @@
             <tr class="table-primary">
                 <th>PHP VERSION</th>
                 <th>PATH</th>
+                <th class="text-center">STATUS</th>
+                <th width="300">&nbsp;</th>
                 <th width="10">&nbsp;</th>
             </tr>
             </thead>
@@ -35,10 +37,30 @@
                 <tr>
                     <td>{{ entity.version }}</td>
                     <td>{{ entity.path }}</td>
+                    <td class="text-center">{{ entity.isStatus(status[entity.version]) | raw }}</td>
+
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <a href="{{ path('app_phpversion_start', {id: entity.id}) }}"
+                               class="btn btn-secondary btn-sm">
+                                <i class="fa-regular fa-circle-play me-1"></i> Start
+                            </a>
+
+                            <a href="{{ path('app_phpversion_restart', {id: entity.id}) }}"
+                               class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i> Restart
+                            </a>
+
+                            <a href="{{ path('app_phpversion_stop', {id: entity.id}) }}"
+                               class="btn btn-secondary btn-sm">
+                                <i class="fa-regular fa-circle-stop me-1"></i> Stop
+                            </a>
+                        </div>
+                    </td>
 
                     <td class="text-end">
                         <a href="#editModal" data-bs-toggle="modal"
-                           data-route="{{ path('app_phpversion_edit', {id: entity.id}) }}"
+                           data-route="{{ path('app_phpversion_edit_ini', {id: entity.id}) }}"
                            data-target="#editModal .modal-body">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </a>
@@ -54,7 +76,7 @@
     </div>
 
     {% include 'php_version/modal.html.twig' %}
-    
+
 {% endblock %}
 
 {% block javascripts %}

@@ -1,21 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Service\ApacheService;
 use App\Service\PhpVersionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhpVersionController extends AbstractController
 {
     private PhpVersionService $phpVersionService;
 
-    public function __construct(PhpVersionService $phpVersionService)
-    {
+    private TranslatorInterface $translator;
+
+    public function __construct(
+        PhpVersionService $phpVersionService,
+        TranslatorInterface $translator
+    ) {
         $this->phpVersionService = $phpVersionService;
+        $this->translator = $translator;
     }
 
     /**
@@ -27,8 +34,11 @@ class PhpVersionController extends AbstractController
 
         $pagination = $this->phpVersionService->getAll($page);
 
+        $status = $this->phpVersionService->getStatus();
+        
         return $this->render('php_version/index.html.twig', [
             'pagination' => $pagination,
+            'status' => $status,
         ]);
     }
 
@@ -40,10 +50,7 @@ class PhpVersionController extends AbstractController
         try {
             $this->phpVersionService->update();
 
-            $this->addFlash(
-                'success',
-                'Lista de versões do PHP foi atualizada com sucesso!'
-            );
+            $this->addFlash('success', $this->translator->trans('phpversion.versionsList'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -52,21 +59,87 @@ class PhpVersionController extends AbstractController
     }
 
     /**
-     * @Route("/phpversion/{id}/edit", name="app_phpversion_edit", methods={"GET"})
+     * @Route("/phpversion/{id}/start", name="app_phpversion_start", methods={"GET"})
      */
-    public function edit(int $id, PhpVersionService $phpVersionService): Response
+    public function start(int $id): Response
     {
         try {
-            $phpVersion = $phpVersionService->get($id);
+            $this->phpVersionService->changeStatus($id, 'start');
+
+            $this->addFlash('success', $this->translator->trans('phpversion.start'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_phpversion_index');
+    }
+
+    /**
+     * @Route("/phpversion/{id}/restart", name="app_phpversion_restart", methods={"GET"})
+     */
+    public function restart(int $id): Response
+    {
+        try {
+            $this->phpVersionService->changeStatus($id, 'restart');
+
+            $this->addFlash('success', $this->translator->trans('phpversion.restart'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_phpversion_index');
+    }
+
+    /**
+     * @Route("/phpversion/{id}/stop", name="app_phpversion_stop", methods={"GET"})
+     */
+    public function stop(int $id): Response
+    {
+        try {
+            $this->phpVersionService->changeStatus($id, 'stop');
+
+            $this->addFlash('success', $this->translator->trans('phpversion.stop'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_phpversion_index');
+    }
+
+    /**
+     * @Route("/phpversion/{id}/edit-ini", name="app_phpversion_edit_ini", methods={"GET"})
+     */
+    public function editIni(int $id): Response
+    {
+        try {
+            $phpVersion = $this->phpVersionService->get($id);
 
             return $this->render('php_version/edit.html.twig', [
                 'entity' => $phpVersion,
-                'configFileDto' => $phpVersionService->getIni($phpVersion),
+                'configFileDto' => $this->phpVersionService->getIni($phpVersion),
             ]);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
 
             return $this->redirectToRoute('app_phpversion_index');
         }
+    }
+
+    /**
+     * @Route("/phpversion/{id}/update-ini", name="app_phpversion_update_ini", methods={"POST"})
+     */
+    public function updateIni(Request $request, int $id): Response
+    {
+        try {
+            $content = $request->request->get('content');
+
+            $this->phpVersionService->updateIni($id, $content);
+
+            $this->addFlash('success', $this->translator->trans('fileHasUpdated'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_phpversion_index');
     }
 }
