@@ -39,7 +39,7 @@
                 <th>PHP VERSION</th>
                 <th>DOCUMENT ROOT</th>
                 <th>DEFAULT DOCUMENT</th>
-                <th width="10">&nbsp;</th>
+                <th width="200">&nbsp;</th>
                 <th width="10">&nbsp;</th>
             </tr>
             </thead>
@@ -55,20 +55,20 @@
                     <td class="text-center">{{ site.phpVersion }}</td>
                     <td class="small">{{ site.documentRoot }}</td>
                     <td class="small">{{ site.defaultDocument }}</td>
-                    <td class="text-end">
+                    <td class="text-center">
                         <a href="javascript:void(0);"
-                           class="btnConfirmar"
+                           class="btn btn-secondary btn-sm btnConfirmar"
                            title="Criar ou atualizar configurações"
                            data-route="{{ path('app_apache_virtualhost_create', {id: site.id}) }}"
                            data-title="Gerar Arquivos?"
                            data-msg="Esse processo irá gerar ou atualizar os arquivos de configuração.">
-                            <i class="fa-solid fa-terminal"></i>
+                            <i class="fa-solid fa-terminal me-1"></i> {{ 'btn.generateFiles' | trans }}
                         </a>
                     </td>
                     <td class="text-end">
-                        <a href="#editModal" data-bs-toggle="modal"
+                        <a href="#modalEdit" data-bs-toggle="modal"
                            data-route="{{ path('app_site_edit', {id: site.id}) }}"
-                           data-target="#editModalBody" class="editModal">
+                           data-target="#modalEdit .modal-body">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </a>
                     </td>
@@ -89,17 +89,6 @@
 {% block javascripts %}
     <script>
         $(document).on('show.bs.modal', '#modalApacheStatus', function (event) {
-            const button = event.relatedTarget;
-
-            let route = button.getAttribute('data-route');
-            let target = button.getAttribute('data-target');
-
-            $.get(route, function (data) {
-                $(target).html(data ?? '');
-            });
-        });
-
-        $(document).on('show.bs.modal', '#modalCreate', function (event) {
             const button = event.relatedTarget;
 
             let route = button.getAttribute('data-route');

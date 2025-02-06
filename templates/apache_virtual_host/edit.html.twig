@@ -1,3 +1,5 @@
+<p class="text-body-tertiary">{{ apacheVirtualHostDto.virtualHost.name }}</p>
+
 <form id="site-create-form" action="{{ path('app_apache_virtualhost_update', {id: site.id}) }}"
       method="POST">
 
@@ -5,7 +7,7 @@
         <textarea cols="30" rows="20" class="form-control block-code"
                   id="virtualHostConf"
                   name="virtualHostConf"
-                  spellcheck="false">{{ apacheVirtualHostDto.virtualHost }}</textarea>
+                  spellcheck="false">{{ apacheVirtualHostDto.virtualHost.content }}</textarea>
     </div>
 
     <div class="text-end">

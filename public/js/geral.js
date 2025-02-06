@@ -1,4 +1,15 @@
-$(document).on('show.bs.modal', '#editModal', function (event) {
+$(document).on('show.bs.modal', '#modalCreate', function (event) {
+    const button = event.relatedTarget;
+
+    let route = button.getAttribute('data-route');
+    let target = button.getAttribute('data-target');
+
+    $.get(route, function (data) {
+        $(target).html(data ?? '');
+    });
+});
+
+$(document).on('show.bs.modal', '#modalEdit', function (event) {
     const button = event.relatedTarget;
 
     let route = button.getAttribute('data-route');

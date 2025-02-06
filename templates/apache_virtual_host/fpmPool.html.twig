@@ -1,11 +1,12 @@
-<p>Cria um arquivo de configuração do PHP-FPM Pool.</p>
+<p class="text-body-tertiary">{{ apacheVirtualHostDto.fpmPool.name }}</p>
+
 <form id="site-create-form" action="{{ path('app_apache_update_fpmpool', {id: site.id}) }}"
       method="POST">
 
     <div class="form-group mb-4">
         <textarea cols="30" rows="10" class="form-control block-code"
                   id="fpmPool"
-                  name="fpmPool" spellcheck="false">{{ apacheVirtualHostDto.fpmPool }}</textarea>
+                  name="fpmPool" spellcheck="false">{{ apacheVirtualHostDto.fpmPool.content }}</textarea>
     </div>
 
     <div class="text-end">
@@ -19,7 +20,7 @@
 <hr>
 
 <div class="text-secondary">
-    <p>Exemplo de configuração</p>
+    <p>{{ 'configurationExample' | trans }}</p>
     <pre><code class="language-ini">[www]
 php_admin_value[upload_max_filesize] = 50M
 php_admin_value[post_max_size] = 50M

@@ -6,70 +6,70 @@ namespace App\Dto;
 
 final class ApacheVirtualHostDto extends AbstractDto
 {
-    protected string $virtualHost;
+    protected ConfigFileDto $virtualHost;
 
-    protected string $userIni;
+    protected ConfigFileDto $userIni;
 
-    protected string $fpmPool;
+    protected ConfigFileDto $fpmPool;
 
-    protected string $accessLog;
+    protected ConfigFileDto $accessLog;
 
-    protected string $errorLog;
+    protected ConfigFileDto $errorLog;
 
-    public function getVirtualHost(): string
+    public function getVirtualHost(): ConfigFileDto
     {
         return $this->virtualHost;
     }
 
-    public function setVirtualHost(string $virtualHost): self
+    public function setVirtualHost(ConfigFileDto $virtualHost): self
     {
         $this->virtualHost = $virtualHost;
 
         return $this;
     }
 
-    public function getUserIni(): string
+    public function getUserIni(): ConfigFileDto
     {
         return $this->userIni;
     }
 
-    public function setUserIni(string $userIni): self
+    public function setUserIni(ConfigFileDto $userIni): self
     {
         $this->userIni = $userIni;
 
         return $this;
     }
 
-    public function getFpmPool(): string
+    public function getFpmPool(): ConfigFileDto
     {
         return $this->fpmPool;
     }
 
-    public function setFpmPool(string $fpmPool): self
+    public function setFpmPool(ConfigFileDto $fpmPool): self
     {
         $this->fpmPool = $fpmPool;
 
         return $this;
     }
 
-    public function getAccessLog(): string
+    public function getAccessLog(): ConfigFileDto
     {
         return $this->accessLog;
     }
 
-    public function setAccessLog(string $accessLog): self
+    public function setAccessLog(ConfigFileDto $accessLog): self
     {
         $this->accessLog = $accessLog;
 
         return $this;
     }
 
-    public function getErrorLog(): string
+    public function getErrorLog(): ConfigFileDto
     {
         return $this->errorLog;
     }
 
-    public function setErrorLog(string $errorLog): self
+    public function setErrorLog(ConfigFileDto $errorLog): self
     {
         $this->errorLog = $errorLog;
 

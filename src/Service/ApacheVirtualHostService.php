@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ConfigFileDto;
 use App\Entity\Site;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -37,15 +38,18 @@ final class ApacheVirtualHostService
         $this->bashScriptService = $bashScriptService;
     }
 
-    public function get(Site $site): string
+    public function get(Site $site): ConfigFileDto
     {
-        if (!$this->filesystem->exists($this->apacheVirtualHostPath . $site->getDomainConf())) {
-            return '';
+        $fileName = $this->apacheVirtualHostPath . $site->getDomainConf();
+
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'cat', $site->getDomainConf()];
+            $return = $this->bashScriptService->runCommandWithReturn($command, $this->apacheVirtualHostPath);
         }
 
-        $command = ['sudo', 'cat', $site->getDomainConf()];
-
-        return $this->bashScriptService->runCommandWithReturn($command, $this->apacheVirtualHostPath);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
     public function create(Site $site): void
@@ -115,59 +119,62 @@ final class ApacheVirtualHostService
         ]);
     }
 
-    public function getAccessLog(Site $site, int $numberLines = 20): string
+    public function getAccessLog(Site $site, int $numberLines = 20): ConfigFileDto
     {
         $fileName = '/var/log/apache2/' . $site->getAccessLog();
         $lines = '-' . $numberLines;
 
-        if (!$this->filesystem->exists($fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'tail', $lines, $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
         }
 
-        $command = ['sudo', 'tail', $lines, $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
-    public function getErrorLog(Site $site, int $numberLines = 20): string
+    public function getErrorLog(Site $site, int $numberLines = 20): ConfigFileDto
     {
         $fileName = '/var/log/apache2/' . $site->getErrorLog();
         $lines = '-' . $numberLines;
 
-        if (!$this->filesystem->exists($fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'tail', $lines, $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
         }
 
-        $command = ['sudo', 'tail', $lines, $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
-    public function getFpmPool(Site $site): string
+    public function getFpmPool(Site $site): ConfigFileDto
     {
-        $fileName = $site->getDomainConf();
-
         $workingDirectory = sprintf('/etc/php/%s/fpm/pool.d/', $site->getPhpVersion());
+        $fileName = $workingDirectory . $site->getDomainConf();
 
-        if (!$this->filesystem->exists($workingDirectory . $fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'cat', $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command, $workingDirectory);
         }
 
-        $command = ['sudo', 'cat', $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command, $workingDirectory);
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 
-    public function getUserIni(Site $site): string
+    public function getUserIni(Site $site): ConfigFileDto
     {
-        $fileName = '.user.ini';
+        $fileName = $site->getDocumentRoot() . DIRECTORY_SEPARATOR . '.user.ini';
 
-        if (!$this->filesystem->exists($site->getDocumentRoot() . DIRECTORY_SEPARATOR . $fileName)) {
-            return '';
+        if ($this->filesystem->exists($fileName)) {
+            $command = ['sudo', 'cat', $fileName];
+            $return = $this->bashScriptService->runCommandWithReturn($command);
         }
 
-        $command = ['sudo', 'cat', $fileName];
-
-        return $this->bashScriptService->runCommandWithReturn($command, $site->getDocumentRoot());
+        return ConfigFileDto::create()
+            ->setName($fileName)
+            ->setContent($return ?? '');
     }
 }
