@@ -50,8 +50,8 @@
         <a href="javascript:void(0)"
            class="btn btn-outline-danger me-auto btnRemove"
            data-route="{{ path('app_apache_virtualhost_delete', {id: site.id}) }}"
-           data-title="Remover Site?"
-           data-msg="Esse processo irá remover o sites e seus arquivos de configurações">
+           data-title="{{ 'site.delete.title' | trans }}"
+           data-msg="{{ 'site.delete.message' | trans }}">
             {{ 'btn.delete' | trans }}
         </a>
 

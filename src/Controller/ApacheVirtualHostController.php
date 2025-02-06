@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ApacheVirtualHostController extends AbstractController
 {
@@ -17,22 +18,16 @@ class ApacheVirtualHostController extends AbstractController
 
     private ApacheVirtualHostService $apacheVirtualHostService;
 
+    private TranslatorInterface $translator;
+
     public function __construct(
         ApacheService $apacheService,
-        ApacheVirtualHostService $apacheVirtualHostService
+        ApacheVirtualHostService $apacheVirtualHostService,
+        TranslatorInterface $translator
     ) {
         $this->apacheService = $apacheService;
         $this->apacheVirtualHostService = $apacheVirtualHostService;
-    }
-
-    /**
-     * @Route("/apache/virtualhost/host", name="app_apache_virtualhost_index")
-     */
-    public function index(): Response
-    {
-        return $this->render('apache_virtual_host/index.html.twig', [
-            'controller_name' => 'ApacheVirtualHostController',
-        ]);
+        $this->translator = $translator;
     }
 
     /**
@@ -43,7 +38,7 @@ class ApacheVirtualHostController extends AbstractController
         try {
             $this->apacheService->create($id);
 
-            $this->addFlash('success', 'VirtualHost criado! O site deve está disponível para acesso!');
+            $this->addFlash('success', $this->translator->trans('fileHasCreated'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -59,10 +54,7 @@ class ApacheVirtualHostController extends AbstractController
         try {
             $this->apacheService->delete($id);
 
-            $this->addFlash(
-                'success',
-                'VirtualHost removido! Os arquivos de configuração também foram removidos!'
-            );
+            $this->addFlash('success', $this->translator->trans('site.form.deleted'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -80,7 +72,7 @@ class ApacheVirtualHostController extends AbstractController
 
             $this->apacheVirtualHostService->update($id, $content);
 
-            $this->addFlash('success', 'VirtualHost atualizado!');
+            $this->addFlash('success', $this->translator->trans('fileHasUpdated'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

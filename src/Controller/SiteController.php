@@ -11,14 +11,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SiteController extends AbstractController
 {
     private SiteService $siteService;
 
-    public function __construct(SiteService $siteService)
+    private TranslatorInterface $translator;
+
+    public function __construct(SiteService $siteService, TranslatorInterface $translator)
     {
         $this->siteService = $siteService;
+        $this->translator = $translator;
     }
 
     /**
@@ -62,10 +66,7 @@ class SiteController extends AbstractController
 
             $this->siteService->create($requestData);
 
-            $this->addFlash(
-                'success',
-                'Site criado! Execute o comando para gerar os arquivos de configuração!'
-            );
+            $this->addFlash('success', $this->translator->trans('site.form.created'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }
@@ -106,10 +107,7 @@ class SiteController extends AbstractController
             $site = $this->siteService->get($id);
             $this->siteService->update($requestData, $site);
 
-            $this->addFlash(
-                'success',
-                'Site atualizado! Execute o comando para gerar os arquivos de configuração!'
-            );
+            $this->addFlash('success', $this->translator->trans('site.form.updated'));
         } catch (\Exception $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

@@ -50,9 +50,7 @@ $(document).on('click', '.btnRemove', function (event) {
             window.location.href = route;
         }
     });
-
 });
-
 
 $(document).on('click', '.btnConfirm', function (event) {
     event.preventDefault();
@@ -62,7 +60,7 @@ $(document).on('click', '.btnConfirm', function (event) {
     let msg = $(this).data('msg');
 
     Swal.fire({
-        icon: 'info',
+        icon: 'question',
         title: `${title}`,
         text: `${msg}`,
         confirmButtonText: 'Sim',
@@ -73,16 +71,4 @@ $(document).on('click', '.btnConfirm', function (event) {
             window.location.href = route;
         }
     });
-
 });
-
-
-// document.addEventListener('DOMContentLoaded', function () {
-//     setTimeout(function () {
-//         let alerts = document.querySelectorAll('.alert-dismissible');
-//         alerts.forEach(function (alert) {
-//             let bsAlert = new bootstrap.Alert(alert);
-//             bsAlert.close();
-//         });
-//     }, 5000);
-// });
