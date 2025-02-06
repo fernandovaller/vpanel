@@ -3,6 +3,9 @@
 vPanel é um simples painel para administrar sites em localhost utilizando o servidor Apache. Ele
 fornece uma interface web amigável para facilitar o gerenciamento de sites locais.
 
+![Descrição do GIF](./public/image/show.gif)
+
+
 ## 🚀 Funcionalidades
 
 - Executar apenas em ambiantes de DEV!
@@ -14,7 +17,6 @@ fornece uma interface web amigável para facilitar o gerenciamento de sites loca
 ## 📦 Requisitos
 
 - PHP 7.4+
-- Composer
 - Apache com suporte a virtual hosts
 - SQLite3
 
